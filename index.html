@@ -97,7 +97,7 @@
 <meta name="description" content="学海无涯">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Lecher的博客">
-<meta property="og:url" content="http://lecher23.github.io/index.html">
+<meta property="og:url" content="http://blog.lecher.tech/index.html">
 <meta property="og:site_name" content="Lecher的博客">
 <meta property="og:description" content="学海无涯">
 <meta property="og:locale" content="zh-Hans">
@@ -132,7 +132,7 @@
 
 
 
-  <link rel="canonical" href="http://lecher23.github.io/"/>
+  <link rel="canonical" href="http://blog.lecher.tech/"/>
 
 
 
@@ -257,7 +257,227 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://lecher23.github.io/2017/07/12/sorted-set-in-redis/">
+    <link itemprop="mainEntityOfPage" href="http://blog.lecher.tech/2017/08/15/rpc-for-tornado/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="LiCheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lecher的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/08/15/rpc-for-tornado/" itemprop="url">异步RPC框架探究</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-08-15T18:26:28+08:00">
+                2017-08-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>在进行服务拆分的时候，不同服务之间使用HTTP协议来进行数据交互是最常见的一种解决方案。</p>
+<p>之前我在做数据层和业务层分离时，采取的方案是双层Tornado+异步HTTP请求的方式进行数据交互，今天心血来潮，写了下脚本测试服务之间的异步HTTP调用，使用netstat 命令发现TIME_WAIT状态特别多。</p>
+<p>原因很简单，异步HTTP调用使用的是tornado的AsyncHTTPClient，它会在每次请求的时候重新建立一个链接，而不是复用之前的连接。</p>
+<p>就此开启我的优化之旅…</p>
+<h3 id="异步优化"><a href="#异步优化" class="headerlink" title="异步优化"></a>异步优化</h3><p>在查看了网上一些讨论之后，发现有个大牛提出在针对同一个地址进行频繁的HTTP请求时的解决方案：使用长连接，同时还给出了Tornado下的使用方式。</p>
+<p>之前一直以为Tornado中的异步HTTP只有AsyncHTTPClient，经过大牛指点，发现还有一个叫做tornado.curl_httpclient.CurlAsyncHTTPClient的异步HTTP库，这个库的功能就很强大了，可以在请求时保持长连接，极大地减少TIME_WAIT状态。</p>
+<p>在正式使用时候要注意，max_clients参数不要太小，也别太大，在我的机器上测试，max_clients=128是比较中肯的配置。</p>
+<h3 id="简易RPC封装"><a href="#简易RPC封装" class="headerlink" title="简易RPC封装"></a>简易RPC封装</h3><p>之前服务对外暴露自己接口的方式完全跟写API接口一样:</p>
+<ol>
+<li>实现一个基于RequestHandler的业务Handler</li>
+<li>设置路径映射</li>
+</ol>
+<p>这样暴露出来的接口使用很不方便，使用时必须知道该服务这个接口的具体路径，扩展性也很差，今天在写代码的过程中想到了celery处理task的方式，啊哈，装饰器！！仔细想了下，通过合理的设计，完全可以记得减少业务开发方和业务调用方的工作量。</p>
+<h4 id="服务提供端设计"><a href="#服务提供端设计" class="headerlink" title="服务提供端设计"></a>服务提供端设计</h4><p>本着半吊子Pythonic精神，我设想的完成后的RPC框架这样工作：</p>
+<ol>
+<li>用户调用装饰器装饰需要提供成服务的方法，不需要额外定义路径映射</li>
+<li>服务提供端定义一个唯一的RPC接口，所有的服务都通过该接口访问</li>
+<li>框架内部进行方法映射</li>
+</ol>
+<p>废话不多说，上代码:</p>
+<pre class="prettyprint lang-python">
+RpcHandler(RequestHandler):
+    _methods = {}
+
+    def post(self):
+        obj = json.loads(self.request.body)
+        func_name = obj['fun']
+        args = obj['args']
+        kwargs = obj['kwargs']
+        f = self._methods.get(func_name, None)
+        if not f:
+            self.set_status(502, 'no func found err')
+            return
+        result = f(*args, **kwargs)
+        self.write(json.dumps({'ret': result}))
+
+    @classmethod
+    def inject_rpc(cls, func):
+        '''used for inject a function in class to rpc framework.'''
+        cls._methods[func.__name__] = partial(func)
+
+    @classmethod
+    def rpc(cls, func):
+        cls._methods[func.__name__] = func
+
+        @wraps(func)
+        def y(*args, **kwargs):
+            print args, kwargs
+            return func(*args, **kwargs)
+
+        return y
+</pre>
+
+<p>使用方法:</p>
+<pre class="prettyprint lang-python">
+@RpcHandler.rpc
+def pure_function():
+    pass
+
+class X():
+    def function_in_class(self):
+        pass
+x = X()
+RpcHandler.inject_rpc(x.function_in_class)
+</pre>
+
+<p>有瑕疵的地方就是这个装饰器无法作用于类方法，因为类方法需要将self也传入，但是在调用装饰器时并没有实例创建，因此增加了一个inject_rpc方法曲线救国…</p>
+<p>这里有意思的是partial函数，使用partial函数时，它会自动将实例绑定成方法的第一个参数，具体原理还需要研究下。</p>
+<p>最后，若要服务生效，一定要将其加到application的handlers配置中去。</p>
+<h4 id="客户端设计"><a href="#客户端设计" class="headerlink" title="客户端设计"></a>客户端设计</h4><p>客户端设计成只要知道方法名就可以调用的方式，上代码:</p>
+<pre class="prettyprint lang-python">
+class RpcClient(object):
+    def __init__(self, host):
+        self.host = host
+
+    def remote_call(self, func, callback, *args, **kwargs):
+        req = HTTPRequest(url=self.host, method='POST', body=json.dumps({
+            'fun': func.__name__,
+            'args': args,
+            'kwargs': kwargs
+        }))
+        cli = tornado.curl_httpclient.CurlAsyncHTTPClient(max_clients=128)
+        cli.fetch(req, callback=partial(self.process_rpc_ret, callback))
+
+    def process_rpc_ret(self, cb, response):
+        if not response.error:
+            obj = json.loads(response.body)
+            cb(obj['ret'])
+        else:
+            print response.code, response.reason
+            cb(None)
+</pre>
+
+<p>使用方法:</p>
+<pre class="prettyprint lang-python">
+cli = RpcClient("localhost:8080/rpc")
+def mycallback(ret):
+    pass
+cli.remote_call(X.function_in_class, mycallback)
+</pre>
+
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.lecher.tech/2017/07/12/sorted-set-in-redis/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="LiCheng">
@@ -393,7 +613,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://lecher23.github.io/2017/04/25/taxas-poker-solution2/">
+    <link itemprop="mainEntityOfPage" href="http://blog.lecher.tech/2017/04/25/taxas-poker-solution2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="LiCheng">
@@ -642,7 +862,7 @@ class TaxasPlayerV2(object):
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://lecher23.github.io/2017/04/20/card-game-srv-design/">
+    <link itemprop="mainEntityOfPage" href="http://blog.lecher.tech/2017/04/20/card-game-srv-design/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="LiCheng">
@@ -793,7 +1013,7 @@ class TaxasPlayerV2(object):
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://lecher23.github.io/2017/03/21/taxas-poker-solution/">
+    <link itemprop="mainEntityOfPage" href="http://blog.lecher.tech/2017/03/21/taxas-poker-solution/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="LiCheng">
@@ -1260,7 +1480,7 @@ class PubCardsAttr(object):
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://lecher23.github.io/2017/02/21/sth-important-on-payment-sys/">
+    <link itemprop="mainEntityOfPage" href="http://blog.lecher.tech/2017/02/21/sth-important-on-payment-sys/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="LiCheng">
@@ -1387,7 +1607,7 @@ class PubCardsAttr(object):
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://lecher23.github.io/2017/02/17/solve-blocked-mysql-in-tornado/">
+    <link itemprop="mainEntityOfPage" href="http://blog.lecher.tech/2017/02/17/solve-blocked-mysql-in-tornado/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="LiCheng">
@@ -1554,7 +1774,7 @@ def query(self, *args, **kwargs):
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://lecher23.github.io/2017/01/22/android-auto-build-tool/">
+    <link itemprop="mainEntityOfPage" href="http://blog.lecher.tech/2017/01/22/android-auto-build-tool/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="LiCheng">
@@ -1696,7 +1916,7 @@ def query(self, *args, **kwargs):
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://lecher23.github.io/2017/01/22/transform-simlehttp/">
+    <link itemprop="mainEntityOfPage" href="http://blog.lecher.tech/2017/01/22/transform-simlehttp/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="LiCheng">
@@ -1896,7 +2116,7 @@ httpd.serve_forever()
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-count">9</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1909,7 +2129,7 @@ httpd.serve_forever()
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-count">10</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

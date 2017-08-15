@@ -98,7 +98,7 @@
 <meta name="keywords" content="Redis">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Redis实战之：最近参与者功能的实现">
-<meta property="og:url" content="http://lecher23.github.io/2017/07/12/sorted-set-in-redis/index.html">
+<meta property="og:url" content="http://blog.lecher.tech/2017/07/12/sorted-set-in-redis/index.html">
 <meta property="og:site_name" content="Lecher的博客">
 <meta property="og:description" content="最近PM扔过来一个需求，换成好理解的表达方式为，获得论坛每个版面的最近参与者(当然我们的产品并不是论坛，不过原理相似)，参与者生成规则为：在版面中发表帖子或者回复了帖子的用户;将这些用户按照活动时间降序排序，得到前几位用户;保证获得的参与者是不一样的。 实现方案看到这个需求，我的第一反映是，直接从数据库获取用户啊，简单粗暴，后来在具体设计的时候仔细想了下，这种方式需要查询多个表，拿到结果后还要综合">
 <meta property="og:locale" content="zh-Hans">
@@ -134,7 +134,7 @@
 
 
 
-  <link rel="canonical" href="http://lecher23.github.io/2017/07/12/sorted-set-in-redis/"/>
+  <link rel="canonical" href="http://blog.lecher.tech/2017/07/12/sorted-set-in-redis/"/>
 
 
 
@@ -257,7 +257,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://lecher23.github.io/2017/07/12/sorted-set-in-redis/">
+    <link itemprop="mainEntityOfPage" href="http://blog.lecher.tech/2017/07/12/sorted-set-in-redis/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="LiCheng">
@@ -381,6 +381,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2017/08/15/rpc-for-tornado/" rel="prev" title="异步RPC框架探究">
+                异步RPC框架探究 <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -456,7 +460,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-count">9</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -469,7 +473,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-count">10</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

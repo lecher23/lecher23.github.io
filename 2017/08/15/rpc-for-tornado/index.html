@@ -78,7 +78,7 @@
 <link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Python,Game," />
+  <meta name="keywords" content="Tornado,RPC,MicroService," />
 
 
 
@@ -94,18 +94,18 @@
 
 
 
-<meta name="description" content="最近又做了一个新的德州扑克算法，和之前的还略有不同，之前的德州扑克算法规则为:玩家手中的两张私有牌必须参与到牌型组合中去，也就是公共牌最多选择3张，这次做的又不一样了：限度放宽，可以5张牌全部来自于公共牌，换个角度，也就是从2张私有牌和5张公共牌组合成的7张牌中选择一个最优解. 解法分析最简单的解法自然是穷举，但是逻辑也很恶心，而且运算量也比较大，PASS掉。 我想到的一种抽丝拨茧的方法是:  对">
-<meta name="keywords" content="Python,Game">
+<meta name="description" content="在进行服务拆分的时候，不同服务之间使用HTTP协议来进行数据交互是最常见的一种解决方案。 之前我在做数据层和业务层分离时，采取的方案是双层Tornado+异步HTTP请求的方式进行数据交互，今天心血来潮，写了下脚本测试服务之间的异步HTTP调用，使用netstat 命令发现TIME_WAIT状态特别多。 原因很简单，异步HTTP调用使用的是tornado的AsyncHTTPClient，它会在每次">
+<meta name="keywords" content="Tornado,RPC,MicroService">
 <meta property="og:type" content="article">
-<meta property="og:title" content="德州扑克解法(2)">
-<meta property="og:url" content="http://blog.lecher.tech/2017/04/25/taxas-poker-solution2/index.html">
+<meta property="og:title" content="异步RPC框架探究">
+<meta property="og:url" content="http://blog.lecher.tech/2017/08/15/rpc-for-tornado/index.html">
 <meta property="og:site_name" content="Lecher的博客">
-<meta property="og:description" content="最近又做了一个新的德州扑克算法，和之前的还略有不同，之前的德州扑克算法规则为:玩家手中的两张私有牌必须参与到牌型组合中去，也就是公共牌最多选择3张，这次做的又不一样了：限度放宽，可以5张牌全部来自于公共牌，换个角度，也就是从2张私有牌和5张公共牌组合成的7张牌中选择一个最优解. 解法分析最简单的解法自然是穷举，但是逻辑也很恶心，而且运算量也比较大，PASS掉。 我想到的一种抽丝拨茧的方法是:  对">
+<meta property="og:description" content="在进行服务拆分的时候，不同服务之间使用HTTP协议来进行数据交互是最常见的一种解决方案。 之前我在做数据层和业务层分离时，采取的方案是双层Tornado+异步HTTP请求的方式进行数据交互，今天心血来潮，写了下脚本测试服务之间的异步HTTP调用，使用netstat 命令发现TIME_WAIT状态特别多。 原因很简单，异步HTTP调用使用的是tornado的AsyncHTTPClient，它会在每次">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-08-15T02:54:33.317Z">
+<meta property="og:updated_time" content="2017-08-15T10:30:44.763Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="德州扑克解法(2)">
-<meta name="twitter:description" content="最近又做了一个新的德州扑克算法，和之前的还略有不同，之前的德州扑克算法规则为:玩家手中的两张私有牌必须参与到牌型组合中去，也就是公共牌最多选择3张，这次做的又不一样了：限度放宽，可以5张牌全部来自于公共牌，换个角度，也就是从2张私有牌和5张公共牌组合成的7张牌中选择一个最优解. 解法分析最简单的解法自然是穷举，但是逻辑也很恶心，而且运算量也比较大，PASS掉。 我想到的一种抽丝拨茧的方法是:  对">
+<meta name="twitter:title" content="异步RPC框架探究">
+<meta name="twitter:description" content="在进行服务拆分的时候，不同服务之间使用HTTP协议来进行数据交互是最常见的一种解决方案。 之前我在做数据层和业务层分离时，采取的方案是双层Tornado+异步HTTP请求的方式进行数据交互，今天心血来潮，写了下脚本测试服务之间的异步HTTP调用，使用netstat 命令发现TIME_WAIT状态特别多。 原因很简单，异步HTTP调用使用的是tornado的AsyncHTTPClient，它会在每次">
 
 
 
@@ -134,13 +134,13 @@
 
 
 
-  <link rel="canonical" href="http://blog.lecher.tech/2017/04/25/taxas-poker-solution2/"/>
+  <link rel="canonical" href="http://blog.lecher.tech/2017/08/15/rpc-for-tornado/"/>
 
 
 
 
 
-  <title>德州扑克解法(2) | Lecher的博客</title>
+  <title>异步RPC框架探究 | Lecher的博客</title>
   
 
 
@@ -257,7 +257,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://blog.lecher.tech/2017/04/25/taxas-poker-solution2/">
+    <link itemprop="mainEntityOfPage" href="http://blog.lecher.tech/2017/08/15/rpc-for-tornado/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="LiCheng">
@@ -274,7 +274,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">德州扑克解法(2)</h1>
+          <h1 class="post-title" itemprop="name headline">异步RPC框架探究</h1>
         
 
         <div class="post-meta">
@@ -286,8 +286,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-25T20:00:00+08:00">
-                2017-04-25
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-08-15T18:26:28+08:00">
+                2017-08-15
               </time>
             
 
@@ -324,136 +324,107 @@
       
 
       
-        <p>最近又做了一个新的德州扑克算法，和之前的还略有不同，<br>之前的德州扑克算法规则为:玩家手中的两张私有牌必须参与到牌型组合中去，<br>也就是公共牌最多选择3张，这次做的又不一样了：限度放宽，可以5张牌全部来自于公共牌，<br>换个角度，也就是从2张私有牌和5张公共牌组合成的7张牌中选择一个最优解.</p>
-<h2 id="解法分析"><a href="#解法分析" class="headerlink" title="解法分析"></a>解法分析</h2><p>最简单的解法自然是穷举，但是逻辑也很恶心，而且运算量也比较大，PASS掉。</p>
-<p>我想到的一种抽丝拨茧的方法是:</p>
+        <p>在进行服务拆分的时候，不同服务之间使用HTTP协议来进行数据交互是最常见的一种解决方案。</p>
+<p>之前我在做数据层和业务层分离时，采取的方案是双层Tornado+异步HTTP请求的方式进行数据交互，今天心血来潮，写了下脚本测试服务之间的异步HTTP调用，使用netstat 命令发现TIME_WAIT状态特别多。</p>
+<p>原因很简单，异步HTTP调用使用的是tornado的AsyncHTTPClient，它会在每次请求的时候重新建立一个链接，而不是复用之前的连接。</p>
+<p>就此开启我的优化之旅…</p>
+<h3 id="异步优化"><a href="#异步优化" class="headerlink" title="异步优化"></a>异步优化</h3><p>在查看了网上一些讨论之后，发现有个大牛提出在针对同一个地址进行频繁的HTTP请求时的解决方案：使用长连接，同时还给出了Tornado下的使用方式。</p>
+<p>之前一直以为Tornado中的异步HTTP只有AsyncHTTPClient，经过大牛指点，发现还有一个叫做tornado.curl_httpclient.CurlAsyncHTTPClient的异步HTTP库，这个库的功能就很强大了，可以在请求时保持长连接，极大地减少TIME_WAIT状态。</p>
+<p>在正式使用时候要注意，max_clients参数不要太小，也别太大，在我的机器上测试，max_clients=128是比较中肯的配置。</p>
+<h3 id="简易RPC封装"><a href="#简易RPC封装" class="headerlink" title="简易RPC封装"></a>简易RPC封装</h3><p>之前服务对外暴露自己接口的方式完全跟写API接口一样:</p>
 <ol>
-<li>对卡组进行降序排序</li>
-<li>遍历卡组，记录如下特征：最长顺子长度以及起始值、<br>3张相同牌的集合、2张相同牌的集合、4张相同牌的值、牌的类型数目</li>
-<li>接下来就是判断过程了</li>
-<li>判断是否有4张相同的牌，如果有，那么在剩下的牌中选张最大的组成四条</li>
-<li>如果可以同花色，且最长顺子长度大于4，判断是否可以组成(皇家)同花顺</li>
-<li>如果有3张相同的牌, 而且同时存在另外一套3张相同的牌或者存在2张相同的牌，<br>那么牌型是葫芦</li>
-<li>如果可以同花色，那么牌型是同花</li>
-<li>如果最大顺子长度大于4，那么可以是顺子</li>
-<li>如果存在3张相同的牌，再找两张大牌组成三条</li>
-<li>如果有多组2张相同的牌，那么再找一张最大牌组成两对</li>
-<li>如果只有一组2张相同的牌，那么再找3张最大的牌组成对子</li>
-<li>最后就只可能是高牌了</li>
+<li>实现一个基于RequestHandler的业务Handler</li>
+<li>设置路径映射</li>
 </ol>
-<h2 id="示例代码"><a href="#示例代码" class="headerlink" title="示例代码"></a>示例代码</h2><pre class="prettyprint lang-python">
-class TaxasPlayerV2(object):
-    def __init__(self, cds):
-        self.cards = cds
-        self.cards.sort(cmp=GameBase.get_card_cmp_func(1), reverse=True)
+<p>这样暴露出来的接口使用很不方便，使用时必须知道该服务这个接口的具体路径，扩展性也很差，今天在写代码的过程中想到了celery处理task的方式，啊哈，装饰器！！仔细想了下，通过合理的设计，完全可以记得减少业务开发方和业务调用方的工作量。</p>
+<h4 id="服务提供端设计"><a href="#服务提供端设计" class="headerlink" title="服务提供端设计"></a>服务提供端设计</h4><p>本着半吊子Pythonic精神，我设想的完成后的RPC框架这样工作：</p>
+<ol>
+<li>用户调用装饰器装饰需要提供成服务的方法，不需要额外定义路径映射</li>
+<li>服务提供端定义一个唯一的RPC接口，所有的服务都通过该接口访问</li>
+<li>框架内部进行方法映射</li>
+</ol>
+<p>废话不多说，上代码:</p>
+<pre class="prettyprint lang-python">
+RpcHandler(RequestHandler):
+    _methods = {}
 
-    def find_best_solution(self):
-        max_seq_num = 1
-        seq_start_val = self.cards[0].value
-        pre = None
-        # pairs 和 thirds 存的是该对子或三张的牌值
-        pairs = []
-        thirds = []
-        four = None
-        same_count = 1
-        card_types = [[], [], [], [], []]
-        for card in self.cards:
-            val = card.value
-            card_types[card.type].append(val)
-            if pre:
-                if pre == val:
-                    # 对子情况
-                    same_count += 1
-                    if same_count == 2:
-                        pairs.append(val)
-                    elif same_count == 3:
-                        pairs.pop()
-                        thirds.append(val)
-                    elif same_count == 4:
-                        four = val
-                        break
-                else:
-                    # 与前面一张牌值不同
-                    same_count = 1
-                    if max_seq_num < 5:
-                        # 没有组成序列
-                        diff = pre - val
-                        if diff == 1 or diff == -12:
-                            # 顺子情况, 3 -> 2 or A -> k
-                            max_seq_num += 1
-                        else:
-                            # 无法构成序列时重置数据
-                            seq_start_val = val
-                            max_seq_num = 1
-            pre = val
-        if four:
-            # 找到最大的单牌
-            for item in self.cards:
-                if item.value != four:
-                    return TaxasSolution(ResultType.Four, (four, item.value))
-        same_color = None
-        for card_list in card_types:
-            if len(card_list) > 4:
-                same_color = card_list
-                break
-        # same_color = [card1, card2, ...]
-        if same_color and max_seq_num > 4:
-            # 判断是否是同花, 相同颜色的已经排好队在same_color中了
-            idx = 1
-            ng_count = 0
-            header = pre = same_color[0] if same_color[0] > 1 else 14
-            while idx < len(same_color):
-                val = same_color[idx] if same_color[idx] > 1 else 14
-                if pre - val == 1:
-                    ng_count += 1
-                else:
-                    ng_count = 1
-                    header = val
-                if ng_count == 4:
-                    break
-                idx += 1
-                pre = val
-            if ng_count >= 4:
-                return TaxasSolution(ResultType.RoyalFlush if header == 14 else ResultType.Flush, (header,))
-        if thirds:
-            if len(thirds) == 2:
-                return TaxasSolution(ResultType.Gourd, (thirds[0], thirds[1]))
-            if pairs:
-                return TaxasSolution(ResultType.Gourd, (thirds[0], pairs[0]))
-        if same_color:
-            return TaxasSolution(ResultType.SameColor, same_color[:5])
-        if max_seq_num > 4:
-            return TaxasSolution(ResultType.Sequence, (seq_start_val,))
-        if thirds:
-            thirds_val = thirds[0]
-            flag = [thirds_val]
-            for item in self.cards:
-                if item.value != thirds_val:
-                    flag.append(item.value)
-                    if len(flag) == 3:
-                        break
-            # 再找两个散牌
-            return TaxasSolution(ResultType.Three, flag)
-        if len(pairs) > 1:
-            pair_tag = [pairs[0], pairs[1]]
-            for item in self.cards:
-                val = item.value
-                if val not in pair_tag:
-                    pair_tag.append(val)
-                    break
-            # 使用前两对, 再找一个大散牌
-            return TaxasSolution(ResultType.TwoPair, pair_tag)
-        elif len(pairs) == 1:
-            pair_tag = [pairs[0]]
-            for item in self.cards:
-                val = item.value
-                if val != pairs[0]:
-                    pair_tag.append(val)
-                    if len(pair_tag) == 4:
-                        break
-            return TaxasSolution(ResultType.SinglePair, pair_tag)
-        return TaxasSolution(ResultType.HighCard, [self.cards[i].value for i in range(0, 5)])
+    def post(self):
+        obj = json.loads(self.request.body)
+        func_name = obj['fun']
+        args = obj['args']
+        kwargs = obj['kwargs']
+        f = self._methods.get(func_name, None)
+        if not f:
+            self.set_status(502, 'no func found err')
+            return
+        result = f(*args, **kwargs)
+        self.write(json.dumps({'ret': result}))
+
+    @classmethod
+    def inject_rpc(cls, func):
+        '''used for inject a function in class to rpc framework.'''
+        cls._methods[func.__name__] = partial(func)
+
+    @classmethod
+    def rpc(cls, func):
+        cls._methods[func.__name__] = func
+
+        @wraps(func)
+        def y(*args, **kwargs):
+            print args, kwargs
+            return func(*args, **kwargs)
+
+        return y
 </pre>
+
+<p>使用方法:</p>
+<pre class="prettyprint lang-python">
+@RpcHandler.rpc
+def pure_function():
+    pass
+
+class X():
+    def function_in_class(self):
+        pass
+x = X()
+RpcHandler.inject_rpc(x.function_in_class)
+</pre>
+
+<p>有瑕疵的地方就是这个装饰器无法作用于类方法，因为类方法需要将self也传入，但是在调用装饰器时并没有实例创建，因此增加了一个inject_rpc方法曲线救国…</p>
+<p>这里有意思的是partial函数，使用partial函数时，它会自动将实例绑定成方法的第一个参数，具体原理还需要研究下。</p>
+<p>最后，若要服务生效，一定要将其加到application的handlers配置中去。</p>
+<h4 id="客户端设计"><a href="#客户端设计" class="headerlink" title="客户端设计"></a>客户端设计</h4><p>客户端设计成只要知道方法名就可以调用的方式，上代码:</p>
+<pre class="prettyprint lang-python">
+class RpcClient(object):
+    def __init__(self, host):
+        self.host = host
+
+    def remote_call(self, func, callback, *args, **kwargs):
+        req = HTTPRequest(url=self.host, method='POST', body=json.dumps({
+            'fun': func.__name__,
+            'args': args,
+            'kwargs': kwargs
+        }))
+        cli = tornado.curl_httpclient.CurlAsyncHTTPClient(max_clients=128)
+        cli.fetch(req, callback=partial(self.process_rpc_ret, callback))
+
+    def process_rpc_ret(self, cb, response):
+        if not response.error:
+            obj = json.loads(response.body)
+            cb(obj['ret'])
+        else:
+            print response.code, response.reason
+            cb(None)
+</pre>
+
+<p>使用方法:</p>
+<pre class="prettyprint lang-python">
+cli = RpcClient("localhost:8080/rpc")
+def mycallback(ret):
+    pass
+cli.remote_call(X.function_in_class, mycallback)
+</pre>
+
 
       
     </div>
@@ -471,9 +442,11 @@ class TaxasPlayerV2(object):
       
         <div class="post-tags">
           
-            <a href="/tags/Python/" rel="tag"># Python</a>
+            <a href="/tags/Tornado/" rel="tag"># Tornado</a>
           
-            <a href="/tags/Game/" rel="tag"># Game</a>
+            <a href="/tags/RPC/" rel="tag"># RPC</a>
+          
+            <a href="/tags/MicroService/" rel="tag"># MicroService</a>
           
         </div>
       
@@ -486,8 +459,8 @@ class TaxasPlayerV2(object):
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/04/20/card-game-srv-design/" rel="next" title="棋牌游戏服务器开发(1)">
-                <i class="fa fa-chevron-left"></i> 棋牌游戏服务器开发(1)
+              <a href="/2017/07/12/sorted-set-in-redis/" rel="next" title="Redis实战之：最近参与者功能的实现">
+                <i class="fa fa-chevron-left"></i> Redis实战之：最近参与者功能的实现
               </a>
             
           </div>
@@ -495,10 +468,6 @@ class TaxasPlayerV2(object):
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/07/12/sorted-set-in-redis/" rel="prev" title="Redis实战之：最近参与者功能的实现">
-                Redis实战之：最近参与者功能的实现 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -623,7 +592,7 @@ class TaxasPlayerV2(object):
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#解法分析"><span class="nav-number">1.</span> <span class="nav-text">解法分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#示例代码"><span class="nav-number">2.</span> <span class="nav-text">示例代码</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#异步优化"><span class="nav-number">1.</span> <span class="nav-text">异步优化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#简易RPC封装"><span class="nav-number">2.</span> <span class="nav-text">简易RPC封装</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#服务提供端设计"><span class="nav-number">2.1.</span> <span class="nav-text">服务提供端设计</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#客户端设计"><span class="nav-number">2.2.</span> <span class="nav-text">客户端设计</span></a></li></ol></li></ol></div>
             
 
           </div>
