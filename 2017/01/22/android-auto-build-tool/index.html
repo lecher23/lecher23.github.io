@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Python,Web,APK Build," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="公司在大力推广我们组开发的APK，高兴的同时发现我们的打包同学每天都将时间消耗在了打包工作上面，在了解了下他打包的内容后，发现每次打包只是进行如下更改：  修改应用名称 修改应用图标 修改应用的渠道名称 修改应用中的DataEye标识符 修改应用的ID，也就是包名  很明显的重复劳动，作为一个合格的工程师，自然要想法子让打包自动化起来。在调研了下网络上的解决方案后，我觉得在办周时间内写一个自动化打">
+<meta name="keywords" content="Python,Web,APK Build">
+<meta property="og:type" content="article">
+<meta property="og:title" content="简易安卓自动化打包平台">
+<meta property="og:url" content="http://lecher23.github.io/2017/01/22/android-auto-build-tool/index.html">
+<meta property="og:site_name" content="Lecher的博客">
+<meta property="og:description" content="公司在大力推广我们组开发的APK，高兴的同时发现我们的打包同学每天都将时间消耗在了打包工作上面，在了解了下他打包的内容后，发现每次打包只是进行如下更改：  修改应用名称 修改应用图标 修改应用的渠道名称 修改应用中的DataEye标识符 修改应用的ID，也就是包名  很明显的重复劳动，作为一个合格的工程师，自然要想法子让打包自动化起来。在调研了下网络上的解决方案后，我觉得在办周时间内写一个自动化打">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-08-15T02:54:44.293Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="简易安卓自动化打包平台">
+<meta name="twitter:description" content="公司在大力推广我们组开发的APK，高兴的同时发现我们的打包同学每天都将时间消耗在了打包工作上面，在了解了下他打包的内容后，发现每次打包只是进行如下更改：  修改应用名称 修改应用图标 修改应用的渠道名称 修改应用中的DataEye标识符 修改应用的ID，也就是包名  很明显的重复劳动，作为一个合格的工程师，自然要想法子让打包自动化起来。在调研了下网络上的解决方案后，我觉得在办周时间内写一个自动化打">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"always","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://lecher23.github.io/2017/01/22/android-auto-build-tool/"/>
+
+
+
+
+
+  <title>简易安卓自动化打包平台 | Lecher的博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Lecher的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Be a good coder.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://lecher23.github.io/2017/01/22/android-auto-build-tool/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="LiCheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lecher的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">简易安卓自动化打包平台</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-01-22T10:19:09+08:00">
+                2017-01-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>公司在大力推广我们组开发的APK，高兴的同时发现我们的打包同学每天都将时间消耗在了打包工作上面，<br>在了解了下他打包的内容后，发现每次打包只是进行如下更改：</p>
+<ul>
+<li>修改应用名称</li>
+<li>修改应用图标</li>
+<li>修改应用的渠道名称</li>
+<li>修改应用中的DataEye标识符</li>
+<li>修改应用的ID，也就是包名</li>
+</ul>
+<p>很明显的重复劳动，作为一个合格的工程师，自然要想法子让打包自动化起来。<br>在调研了下网络上的解决方案后，我觉得在办周时间内写一个自动化打包的工具是没问题，<br>于是马上提出方案，并且大家也觉得非常coool。</p>
+<h3 id="开发过程"><a href="#开发过程" class="headerlink" title="开发过程"></a>开发过程</h3><p>鉴于现在的应用使用Android Studio开发的，而它又是用Gradle来管理自己的编译行为，<br>于是乎我决定在内网的Linux机器上先搞一个编译环境，步骤很简单：<br>安装JDK，安装安卓SDK管理工具，安装gradle</p>
+<p>安装好了之后，从git上把项目代码拉下来，试着打包成功了，进入到下一步：修改参数，<br>在与应用开发人员沟通之后，确定了要修改的配置的位置，然后就是写python脚本进行替换了。</p>
+<p>在替换完之后，直接起一个子进程调用gradle进行编译，过一会儿就看到自己的APK编译成功。</p>
+<p>到此，一个打包工具基本雏形就完成了，接下来就是自动签名了，我采取的方法是：<br>每次打包一个新应用的时候使用keytools重新生成一个key，然后将签名配置在build.gradle中配置好。</p>
+<p>还有个小尾巴，就是需要把apk上传到CDN上，使用人家的库，也容易搞定。<br>另外编译后的包，如果没有上传到CDN，使用者怎么获取呢？<br>我永乐一个很偷懒的方法，那就是把编译完后的包拷贝到指定的目录，<br>然后在该目录下开一个SimpleHTTPServer服务，需要的自己去里面拿就好了，哈哈。</p>
+<p>最后，怎么向外提供服务？当然是使用我最爱的Tornado了，搭建一个网站分分钟的事情，<br>这里我还使用了网上一个大牛写的使用进程实现异步的库，<br>这样就不会因为一个编译任务而卡住整个网站。</p>
+<h3 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h3><p>开发完毕后将工具给同事们使用，现在还在内测中，这个只是一个简化版的自动打包工具，<br>其实还有很多要完善的地方。</p>
+<ul>
+<li>需要和应用开发人员订好开发规范，比如需要替换的字段放到哪里，<br>build.gradle文件中需要添加哪些配置，<br>这些确定下来了我的自动打包工具使用场景才可以泛化</li>
+<li>打包日志需要记录</li>
+<li>代码混淆等当前版本并没有做</li>
+<li>也没有用户权限控制</li>
+</ul>
+<p>不过这个版本已经足以应付打包需求了，毕竟公司人还不多。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Python/" rel="tag"># Python</a>
+          
+            <a href="/tags/Web/" rel="tag"># Web</a>
+          
+            <a href="/tags/APK-Build/" rel="tag"># APK Build</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/01/22/transform-simlehttp/" rel="next" title="SimpleHTTPServer的改造">
+                <i class="fa fa-chevron-left"></i> SimpleHTTPServer的改造
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/02/17/solve-blocked-mysql-in-tornado/" rel="prev" title="在Tornado中将MySQL同步操作封装到线程池中处理">
+                在Tornado中将MySQL同步操作封装到线程池中处理 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="LiCheng" />
+          <p class="site-author-name" itemprop="name">LiCheng</p>
+           
+              <p class="site-description motion-element" itemprop="description">学海无涯</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#开发过程"><span class="nav-number">1.</span> <span class="nav-text">开发过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#最后"><span class="nav-number">2.</span> <span class="nav-text">最后</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">LiCheng</span>
+
+  
+</div>
+
+
+  <div class="powered-by">
+    由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+  </div>
+
+  <span class="post-meta-divider">|</span>
+
+  <div class="theme-info">
+    主题 &mdash;
+    <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+      NexT.Pisces
+    </a>
+  </div>
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Game,Python," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="&amp;nbsp;&amp;nbsp;最近在写一个德州扑克的逻辑, 抽象出问题就是: 给出2张私有牌以及5张公共牌,请问如何找到最大的牌型组合. 德州扑克牌型介绍德州扑克的牌型从大到小排列如下:  皇家同花顺：同花色的A、K、Q、J、10。 同花顺：五张同花色的连续牌。 四条：四张是相同点数的牌，第五张是随意的一张牌。 葫芦：三张相同点数及任何两张其他相同点数的扑克牌组成。 同花：五张不按顺序但花色相同的牌组成">
+<meta name="keywords" content="Game,Python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="德州扑克算法的实现">
+<meta property="og:url" content="http://lecher23.github.io/2017/03/21/taxas-poker-solution/index.html">
+<meta property="og:site_name" content="Lecher的博客">
+<meta property="og:description" content="&amp;nbsp;&amp;nbsp;最近在写一个德州扑克的逻辑, 抽象出问题就是: 给出2张私有牌以及5张公共牌,请问如何找到最大的牌型组合. 德州扑克牌型介绍德州扑克的牌型从大到小排列如下:  皇家同花顺：同花色的A、K、Q、J、10。 同花顺：五张同花色的连续牌。 四条：四张是相同点数的牌，第五张是随意的一张牌。 葫芦：三张相同点数及任何两张其他相同点数的扑克牌组成。 同花：五张不按顺序但花色相同的牌组成">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-08-15T02:54:17.605Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="德州扑克算法的实现">
+<meta name="twitter:description" content="&amp;nbsp;&amp;nbsp;最近在写一个德州扑克的逻辑, 抽象出问题就是: 给出2张私有牌以及5张公共牌,请问如何找到最大的牌型组合. 德州扑克牌型介绍德州扑克的牌型从大到小排列如下:  皇家同花顺：同花色的A、K、Q、J、10。 同花顺：五张同花色的连续牌。 四条：四张是相同点数的牌，第五张是随意的一张牌。 葫芦：三张相同点数及任何两张其他相同点数的扑克牌组成。 同花：五张不按顺序但花色相同的牌组成">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"always","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://lecher23.github.io/2017/03/21/taxas-poker-solution/"/>
+
+
+
+
+
+  <title>德州扑克算法的实现 | Lecher的博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Lecher的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Be a good coder.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://lecher23.github.io/2017/03/21/taxas-poker-solution/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="LiCheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lecher的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">德州扑克算法的实现</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-03-21T20:10:09+08:00">
+                2017-03-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>&nbsp;&nbsp;最近在写一个德州扑克的逻辑, 抽象出问题就是: 给出2张私有牌以及5张公共牌,<br>请问如何找到最大的牌型组合.</p>
+<h2 id="德州扑克牌型介绍"><a href="#德州扑克牌型介绍" class="headerlink" title="德州扑克牌型介绍"></a>德州扑克牌型介绍</h2><p>德州扑克的牌型从大到小排列如下:</p>
+<ul>
+<li>皇家同花顺：同花色的A、K、Q、J、10。</li>
+<li>同花顺：五张同花色的连续牌。</li>
+<li>四条：四张是相同点数的牌，第五张是随意的一张牌。</li>
+<li>葫芦：三张相同点数及任何两张其他相同点数的扑克牌组成。</li>
+<li>同花：五张不按顺序但花色相同的牌组成。</li>
+<li>顺子：五张顺序扑克牌组成。</li>
+<li>三条：三张相同点数和两张不同点数的牌组成。</li>
+<li>两对：两对点数相同但两两不同的扑克和随意的一张牌组成。</li>
+<li>对子：两张点相同的牌。</li>
+<li>高牌：既不是同一花色也不是同一点数的五张牌组成。</li>
+</ul>
+<h2 id="解决思路"><a href="#解决思路" class="headerlink" title="解决思路"></a>解决思路</h2><p>一种比较直观的解法就是穷举所有的可能性,然后从中找到一个最大牌型,但是这种方法并非最优解.<br>另外一种方法就是根据牌型从大到小去判断能否由 2+3 组成.<br><br>我使用第二种思路来解决问题.<br><br>首先, 我们将同花这种情况独立出来, 根据私有牌组成可以判断其是否有可能组成同花.<br>然后, 观察两张私有牌, 然后得出其升级路线:<br></p>
+<ul>
+<li><p>两张私有牌之差为(0, 5), 判断其是否可能为: 皇家同花顺/同花顺/同花/顺子,<br>因为只要是前面三种, 那么四条/葫芦是不可能出现的, 而且如果是顺子, 而且判断可能出现同花,<br>那么可以得出最大牌型为同花</p>
+</li>
+<li><p>两张私有牌相等, 判断其是否可能为: 四条/葫芦/同花/三条/两对/对子,<br>为了加快我们的判断过程, 可以在算法启动时对公共牌进行特征分类,<br>一个是其每个牌值的出现次数统计, 另外一个就是对颜色的统计</p>
+</li>
+<li><p>其它情况, 判断其是否可能为: 四条/葫芦/同花/三条/两对/对子/高牌</p>
+</li>
+</ul>
+<p>需要注意的是, 路线一和路线二是互斥的, 而路线二不会到达路线三.</p>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><pre class="prettyprint lang-python">
+class ResultType(object):
+    HighCard = 1  # 高牌
+    SinglePair = 2  # 对子
+    TwoPair = 3  # 两对
+    Three = 4  # 三条
+    Sequence = 5  # 顺子
+    SameColor = 6  # 同花
+    Gourd = 7  # 葫芦
+    Four = 8  # 四条
+    Flush = 9  # 同花顺
+    RoyalFlush = 10  # 皇家同花顺
+
+
+ResultTypeStr = ('', '高牌', '对子', '两对', '三条', '顺子', '同花', '葫芦', '四条', '同花顺', '皇家同花顺')
+
+
+class TaxasSolution(object):
+    def __init__(self, t, w):
+        self.result_type = t
+        self.origin = w
+        factor = (0, 4, 8, 12, 16)
+        if isinstance(w, list):
+            s = 0
+            for i, www in enumerate(reversed(w)):
+                s += (www << factor[i])
+            self.weight = s
+        else:
+            self.weight = w
+
+    def __lt__(self, other):
+        if self.result_type != other.result_type:
+            return self.result_type - other.result_type < 0
+        return self.weight - other.weight < 0
+
+    def __gt__(self, other):
+        if self.result_type != other.result_type:
+            return self.result_type - other.result_type > 0
+        return self.weight - other.weight > 0
+
+    def __eq__(self, other):
+        if self.result_type != other.result_type:
+            return False
+        return self.weight == other.weight
+
+    def __ne__(self, other):
+        if self.result_type != other.result_type:
+            return True
+        return self.weight != other.weight
+
+    def __str__(self):
+        out = [
+            'weight is {0}'.format(self.weight),
+            '牌型为:{0}'.format(ResultTypeStr[self.result_type]),
+            '组合为:{0}'.format(self.origin)
+        ]
+        return '\n'.join(out)
+
+
+class TaxasPlayer(CardPlayer):
+    def __init__(self, cds, pub_attr):
+        self.pub = pub_attr
+        self.min = cds[0].value
+        self.max = cds[1].value
+        self.unique_type = None
+        super(TaxasPlayer, self).__init__(cds)
+
+    def init_data(self):
+        if self.min == 1:
+            self.min = 14
+        if self.max == 1:
+            self.max = 14
+        if self.min > self.max:
+            self.min, self.max = self.max, self.min
+        if self.cards[0].type == self.cards[1].type:
+            self.unique_type = self.cards[0].type
+
+    def find_best_solution(self):
+        sc = None
+        if self.may_same_color() and self.pub.types_count[self.unique_type] > 2:
+            w = [self.max, self.min] + self.pub.get_same_type_values(self.unique_type)
+            w.sort(reverse=True)
+            sc = TaxasSolution(ResultType.SameColor, w)
+        solution = self.step_1(sc)
+        if not solution:
+            solution = self.step_2(sc)
+            if not solution:
+                solution = self.step_3(sc)
+        return solution
+
+    def may_seq(self):
+        return 0 < self.max - self.min < 5
+
+    def may_pair(self):
+        return self.max == self.min
+
+    def may_same_color(self):
+        return self.unique_type is not None
+
+    def step_1(self, may_same_color):
+        # 判断是否有顺子
+        if self.may_seq():
+            start, end = self.get_value_to_seq(self.min, self.max, 2, 14)
+            seq_max = None
+            while True:
+                can_be_seq = True
+                can_be_same_color = True
+                for i in range(end - 4, end + 1):
+                    if i == self.min or i == self.max:
+                        continue
+                    if i not in self.pub.values:
+                        can_be_seq = False
+                        break
+                    if can_be_same_color and may_same_color:
+                        can_be_same_color = self.unique_type in self.pub.value_types[i]
+                if can_be_seq:
+                    if not may_same_color:
+                        return TaxasSolution(ResultType.Sequence, end)
+                    if can_be_same_color:
+                        return TaxasSolution(ResultType.Flush, end) if \
+                            end <= 2="" cardnum.card_k="" else="" taxassolution(resulttype.royalflush,="" 0)="" seq_max="seq_max" or="" end="" -="1" if="" start="" <="" 4:="" break="" seq_max:="" return="" may_same_color="" taxassolution(resulttype.sequence,="" seq_max)="" none="" def="" step_2(self,="" may_same_color):="" #="" prv:="" a="" 判断牌型="" self.may_pair():="" val="self.max" pub_val_cnt="self.pub.values.get(val," val_sum="pub_val_cnt" +="" 先判断是不是四条="" aaaab="" taxassolution(resulttype.four,="" (val="" <<="" 4)="" self.pub.max_except(val))="" solution="None" 再判断是不是葫芦:="" 要求="" 起码有三个相同的="" tmp="self.pub.values.items()" len(self.pub.values)="" 5:="" for="" card_value,="" card_count="" in="" tmp:="" card_value="=" val:="" continue="">= 3:
+                        if val_sum == 3:
+                            s = TaxasSolution(
+                                ResultType.Gourd, (card_value << 4) + val if card_value > val \
+                                    else (val << 4) + card_value)
+                        else:
+                            return TaxasSolution(ResultType.Gourd, (card_value << 4) + val)
+                    elif card_count == 2 and val_sum == 3:
+                        s = TaxasSolution(ResultType.Gourd, (val << 4) + card_value)
+                    else:
+                        continue
+                    solution = self.choice_solution(s, solution) if solution else s
+                if solution:
+                    return solution
+
+            # 判断是不是同花
+            if may_same_color:
+                return may_same_color
+
+            # 判断是不是三条
+            if val_sum == 3:
+                return TaxasSolution(ResultType.Three, [val] + self.pub.max_except(val, 2))
+
+            # 判断是不是两对
+            for card_value, card_count in tmp:
+                if card_count == 2:
+                    s = TaxasSolution(ResultType.TwoPair,
+                                      [val, card_value, self.pub.max_except(card_value)] if val > card_value \
+                                          else [card_value, val, self.pub.max_except(card_value)])
+                    solution = self.choice_solution(s, solution) if solution else s
+            if solution:
+                return solution
+
+            # 肯定是对子
+            return TaxasSolution(ResultType.SinglePair, [val] + self.pub.max_n(3))
+
+    def step_3(self, may_same_color):
+        # 四条
+        prv_cards = (self.min, self.max)
+        tmp = self.pub.values.items()
+        val_2 = val_3 = None
+        for card_val, card_count in tmp:
+            if card_count == 3:
+                if card_val in prv_cards:
+                    x = prv_cards[0] if card_val == prv_cards[1] else prv_cards[1]
+                    return TaxasSolution(ResultType.Four, (card_val << 4) + x)
+                else:
+                    val_3 = card_val
+            elif card_count == 2:
+                if not val_2:
+                    val_2 = card_val
+                elif val_2 < card_val:
+                    val_2 = card_val
+        # 葫芦
+        x, y = self.pub.values.get(self.min, 0) + 1, self.pub.values.get(self.max, 0) + 1
+        if x == 2 and y == 3:
+            return TaxasSolution(ResultType.Gourd, (self.max << 4) + self.min)
+        elif x == 3 and y == 2:
+            return TaxasSolution(ResultType.Gourd, (self.min << 4) + self.max)
+        elif x == 3 and y == 3:
+            return TaxasSolution(ResultType.Gourd, (self.max << 4) + self.min)
+
+        if may_same_color:
+            return may_same_color
+
+        # 三条
+        if x == 3:
+            other = self.pub.max_except(self.min)
+            return TaxasSolution(ResultType.Three,
+                                 [self.min, other, self.max] if other > self.max else [self.min, self.max, other])
+        elif y == 3:
+            other = self.pub.max_except(self.max)
+            return TaxasSolution(ResultType.Three,
+                                 [self.max, other, self.min] if other > self.min else [self.max, self.min, other])
+        elif val_3:
+            return TaxasSolution(ResultType.Three, (val_3 << 8) + (self.max << 4) + self.min)
+
+        # 两对
+        if x == 2 and y == 2:
+            return TaxasSolution(
+                ResultType.TwoPair, (self.max << 8) + (self.min << 4) + self.pub.max_except_some(self.max, self.min))
+        elif val_2:
+            if x == 2:
+                l, m = (self.min, val_2) if val_2 < self.min else (val_2, self.min)
+                r = self.max
+                return TaxasSolution(ResultType.TwoPair, (l << 8) + (m << 4) + r)
+            elif y == 2:
+                l, m = (self.max, val_2) if val_2 < self.max else (val_2, self.max)
+                r = self.min
+                return TaxasSolution(ResultType.TwoPair, (l << 8) + (m << 4) + r)
+
+        # 对子
+        if x == 2:
+            weight = [self.max] + self.pub.max_except(self.min, 2)
+            weight.sort(reverse=True)
+            return TaxasSolution(ResultType.SinglePair, [self.min] + weight)
+        elif y == 2:
+            weight = [self.min] + self.pub.max_except(self.max, 2)
+            weight.sort(reverse=True)
+            return TaxasSolution(ResultType.SinglePair, [self.max] + weight)
+        elif val_2:
+            weight = [self.min, self.max, self.pub.max_except(val_2)]
+            weight.sort(reverse=True)
+            return TaxasSolution(ResultType.SinglePair, [val_2] + weight)
+        weight = [self.max, self.min] + self.pub.max_n(3)
+        weight.sort(reverse=True)
+        return TaxasSolution(ResultType.HighCard, weight)
+
+    @staticmethod
+    def choice_solution(a, b):
+        if a.result_type == b.result_type:
+            return a if a.weight > b.weight else b
+        return a if a.result_type > b.result_type else b
+
+    @staticmethod
+    def get_value_to_seq(num1, num2, left, right):
+        '''注意这里的A的值已经是14了'''
+        if num1 > num2:
+            num1, num2 = num2, num1
+        diff = 5 - num2 + num1 - 1
+        s = num1 - diff
+        s = s < left and left or s
+        e = num2 + diff
+        e = e > right and right or e
+        return s, e
+
+    def __str__(self):
+        card_type_str = ('', '黑桃', '红桃', '方块', '草花', '小王', '大王')
+        out = []
+        for card in self.cards:
+            out.append('%s_%d' % (card_type_str[card.type], card.value))
+        return ','.join(out)
+
+
+class PubCardsAttr(object):
+    def __init__(self, cds):
+        self.values = {}
+        self.value_types = {}
+        self.sorted_values = []
+        self.types_count = [0] * 7
+        self.cards = cds
+
+        for card in self.cards:
+            t, v = card.type, card.value
+            if v == 1:
+                v = 14
+            self.types_count[t] += 1
+            if v < CardNum.Card_2:
+                v = 14
+            self.values[v] = self.values.get(v, 0) + 1
+            self.sorted_values.append(v)
+            if v not in self.value_types:
+                self.value_types[v] = set()
+            self.value_types[v].add(t)
+        self.sorted_values.sort(reverse=True)
+
+    @staticmethod
+    def cmp_card(a, b):
+        av = a.value if a.value > 1 else 14
+        bv = b.value if b.value > 1 else 14
+        return av - bv
+
+    def max_n(self, n):
+        return self.sorted_values[:n]
+
+    def max_except(self, n, wanted=None):
+        out = []
+        for i in self.sorted_values:
+            if i != n:
+                if not wanted:
+                    return i
+                out.append(i)
+                if len(out) == wanted:
+                    return out
+        raise Exception('should not be here')
+
+    def max_except_some(self, *args):
+        for i in self.sorted_values:
+            if i not in args:
+                return i
+        raise Exception('should not be here.')
+
+    def get_same_type_values(self, tar):
+        self.cards.sort(cmp=self.cmp_card, reverse=True)
+        out = []
+        for card in self.cards:
+            if card.type == tar:
+                if card.value == 1:
+                    out.append(14)
+                else:
+                    out.append(card.value)
+                if len(out) == 3:
+                    break
+        return out
+
+    def __str__(self):
+        card_type_str = ('', '黑桃', '红桃', '方块', '草花', '小王', '大王')
+        out = []
+        for card in self.cards:
+            out.append('%s_%d' % (card_type_str[card.type], card.value))
+        return ','.join(out)
+</=></pre>
+
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><p>在完成后, 需要使用完备的测试对其进行测试, 用例就不在这赘述了.<br><br>代码不是很完善, 还有很多可以改善的地方.</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Game/" rel="tag"># Game</a>
+          
+            <a href="/tags/Python/" rel="tag"># Python</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/21/sth-important-on-payment-sys/" rel="next" title="支付后台开发小计">
+                <i class="fa fa-chevron-left"></i> 支付后台开发小计
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/04/20/card-game-srv-design/" rel="prev" title="棋牌游戏服务器开发(1)">
+                棋牌游戏服务器开发(1) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="LiCheng" />
+          <p class="site-author-name" itemprop="name">LiCheng</p>
+           
+              <p class="site-description motion-element" itemprop="description">学海无涯</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#德州扑克牌型介绍"><span class="nav-number">1.</span> <span class="nav-text">德州扑克牌型介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解决思路"><span class="nav-number">2.</span> <span class="nav-text">解决思路</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#代码"><span class="nav-number">3.</span> <span class="nav-text">代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#测试"><span class="nav-number">4.</span> <span class="nav-text">测试</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">LiCheng</span>
+
+  
+</div>
+
+
+  <div class="powered-by">
+    由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+  </div>
+
+  <span class="post-meta-divider">|</span>
+
+  <div class="theme-info">
+    主题 &mdash;
+    <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+      NexT.Pisces
+    </a>
+  </div>
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
