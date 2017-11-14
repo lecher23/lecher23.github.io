@@ -257,6 +257,212 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.lecher.tech/2017/11/14/ioc-in-python/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="LiCheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lecher的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/11/14/ioc-in-python/" itemprop="url">Python中的IOC控制反转初探</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-14T12:00:00+08:00">
+                2017-11-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>公司的管理后台是用SSM开发的，出于好奇，自己也研究了一下SSM框架，然后发现Spring中使用注解的方式实现依赖注入很有意思，<br>恰好自己做的项目依赖的组件越来越多，每次新增一个组件都会使得初始化代码更丑陋了一点，<br>于是我想，有没有一种类似于Spring的依赖注入方式，来解决Python项目中的各种组件依赖问题呢？<br>晚上回去琢磨了一会儿，发现这样的实现其实很简单，利用装饰器就好了。</p>
+<h3 id="设计概要"><a href="#设计概要" class="headerlink" title="设计概要"></a>设计概要</h3><p>理想中的依赖注入有几个点:</p>
+<ul>
+<li>提供一个注册接口用于注册服务</li>
+<li>提供注入接口用于注入服务，就我目前的工程来说，需要满足: 支持异步方法注入</li>
+<li>注册的服务需要支持继承(最核心的是要支持super关键字)</li>
+</ul>
+<p>根据这种思想，假设我的注解中心叫PIOC，那么注册操作为:<br><code>@PIOC.service(&#39;service_name&#39;, &#39;service_require1&#39;, .., &#39;service_requireN&#39;)
+class OneService(SuperClass):
+    def __init__(self, service_require1=None, ..., service_requireN=None):
+        pass</code><br>这里service装饰器第一个参数定义了该服务的检索名称，后面的参数定义了该服务依赖的其它服务，<br>在调用__init__方法时框架会将依赖的服务注入到传入参数中，之所以使用key=value的方式是为了不干扰其它参数</p>
+<p>对应的注入操作为<br><code>@PIOC.require(&#39;service1&#39;, &#39;service2&#39;)
+def func(service1=None, service2=None):
+    pass</code><br>这样，在调用func的时候框架会自动将service1和service2传入到方法的参数中去</p>
+<p>这样的话一个简单的服务注册和注入框架就设计完成了，接下来看代码实现:</p>
+<h3 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h3><pre class="prettyprint lang-python">
+class PIOC(object):
+    _objects = {}
+    _mapping = {}
+
+    @classmethod
+    def process_dependency(cls, *services):
+        out = {}
+        for service in services:
+            logging.fatal('get service: %s', service)
+            inst = cls._objects.get(service, None)
+            if not inst:
+                cls_def, requirements = cls._mapping[service]
+                logging.fatal('init instance service %s with requirements: %s', service, requirements)
+                inst = cls_def(**cls.process_dependency(*requirements)) if requirements else cls_def()
+                cls._objects[service] = inst
+            out[service] = inst
+        return out
+
+    @classmethod
+    def service(cls, name, *requirements, **settings):
+        def outer(cls_def):
+            if name in cls._mapping:
+                raise ValueError('%s already registered' % name)
+            logging.fatal('process inst: %s for service %s', requirements, name)
+            cls._mapping[name] = (cls_def, requirements)
+            if not settings.get('lazy', True):
+                # 是否启用懒惰初始化
+                # 继承关系无法使用lazy参数
+                cls._objects[name] = cls_def(**cls.process_dependency(*requirements)) if requirements else cls_def()
+            return cls_def
+
+        return outer
+
+    @classmethod
+    def require(cls, *services):
+
+        def outer(func):
+            @wraps(func)
+            def inner(*args, **kwargs):
+                kwargs.update(cls.process_dependency(*services))
+                return func(*args, **kwargs)
+
+            return inner
+
+        return outer
+
+    @classmethod
+    def require_co(cls, *services):
+
+        def outer(func):
+            @tornado.gen.coroutine
+            @wraps(func)
+            def inner(*args, **kwargs):
+                kwargs.update(cls.process_dependency(*services))
+                ret = yield func(*args, **kwargs)
+                raise tornado.gen.Return(ret)
+
+            return inner
+
+        return outer
+
+    @classmethod
+    def destroy(cls):
+        for inst in cls._objects.values():
+            exit_func = getattr(inst, 'destroy', lambda: None)
+            exit_func()
+        cls._objects = {}
+</pre>
+
+<p>这里依赖注入时有两个方法require和require_co，分别对应的非协程版本和协程版本，后者是专门为Tornado定制的,<br>destroy方法用来主动释放资源。</p>
+<h3 id="改进点"><a href="#改进点" class="headerlink" title="改进点"></a>改进点</h3><p>这个框架不是线程安全的，同时服务装饰器的settings参数在面对集成类时会出现异常</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://blog.lecher.tech/2017/08/15/rpc-for-tornado/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2116,7 +2322,7 @@ httpd.serve_forever()
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-count">10</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>

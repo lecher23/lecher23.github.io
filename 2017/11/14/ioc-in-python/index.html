@@ -78,7 +78,7 @@
 <link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="RPC,Tornado,MicroService," />
+  <meta name="keywords" content="Python," />
 
 
 
@@ -94,18 +94,18 @@
 
 
 
-<meta name="description" content="在进行服务拆分的时候，不同服务之间使用HTTP协议来进行数据交互是最常见的一种解决方案。 之前我在做数据层和业务层分离时，采取的方案是双层Tornado+异步HTTP请求的方式进行数据交互，今天心血来潮，写了下脚本测试服务之间的异步HTTP调用，使用netstat 命令发现TIME_WAIT状态特别多。 原因很简单，异步HTTP调用使用的是tornado的AsyncHTTPClient，它会在每次">
-<meta name="keywords" content="RPC,Tornado,MicroService">
+<meta name="description" content="公司的管理后台是用SSM开发的，出于好奇，自己也研究了一下SSM框架，然后发现Spring中使用注解的方式实现依赖注入很有意思，恰好自己做的项目依赖的组件越来越多，每次新增一个组件都会使得初始化代码更丑陋了一点，于是我想，有没有一种类似于Spring的依赖注入方式，来解决Python项目中的各种组件依赖问题呢？晚上回去琢磨了一会儿，发现这样的实现其实很简单，利用装饰器就好了。 设计概要理想中的依赖">
+<meta name="keywords" content="Python">
 <meta property="og:type" content="article">
-<meta property="og:title" content="异步RPC框架探究">
-<meta property="og:url" content="http://blog.lecher.tech/2017/08/15/rpc-for-tornado/index.html">
+<meta property="og:title" content="Python中的IOC控制反转初探">
+<meta property="og:url" content="http://blog.lecher.tech/2017/11/14/ioc-in-python/index.html">
 <meta property="og:site_name" content="Lecher的博客">
-<meta property="og:description" content="在进行服务拆分的时候，不同服务之间使用HTTP协议来进行数据交互是最常见的一种解决方案。 之前我在做数据层和业务层分离时，采取的方案是双层Tornado+异步HTTP请求的方式进行数据交互，今天心血来潮，写了下脚本测试服务之间的异步HTTP调用，使用netstat 命令发现TIME_WAIT状态特别多。 原因很简单，异步HTTP调用使用的是tornado的AsyncHTTPClient，它会在每次">
+<meta property="og:description" content="公司的管理后台是用SSM开发的，出于好奇，自己也研究了一下SSM框架，然后发现Spring中使用注解的方式实现依赖注入很有意思，恰好自己做的项目依赖的组件越来越多，每次新增一个组件都会使得初始化代码更丑陋了一点，于是我想，有没有一种类似于Spring的依赖注入方式，来解决Python项目中的各种组件依赖问题呢？晚上回去琢磨了一会儿，发现这样的实现其实很简单，利用装饰器就好了。 设计概要理想中的依赖">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-08-15T10:30:44.763Z">
+<meta property="og:updated_time" content="2017-11-14T03:46:05.926Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="异步RPC框架探究">
-<meta name="twitter:description" content="在进行服务拆分的时候，不同服务之间使用HTTP协议来进行数据交互是最常见的一种解决方案。 之前我在做数据层和业务层分离时，采取的方案是双层Tornado+异步HTTP请求的方式进行数据交互，今天心血来潮，写了下脚本测试服务之间的异步HTTP调用，使用netstat 命令发现TIME_WAIT状态特别多。 原因很简单，异步HTTP调用使用的是tornado的AsyncHTTPClient，它会在每次">
+<meta name="twitter:title" content="Python中的IOC控制反转初探">
+<meta name="twitter:description" content="公司的管理后台是用SSM开发的，出于好奇，自己也研究了一下SSM框架，然后发现Spring中使用注解的方式实现依赖注入很有意思，恰好自己做的项目依赖的组件越来越多，每次新增一个组件都会使得初始化代码更丑陋了一点，于是我想，有没有一种类似于Spring的依赖注入方式，来解决Python项目中的各种组件依赖问题呢？晚上回去琢磨了一会儿，发现这样的实现其实很简单，利用装饰器就好了。 设计概要理想中的依赖">
 
 
 
@@ -134,13 +134,13 @@
 
 
 
-  <link rel="canonical" href="http://blog.lecher.tech/2017/08/15/rpc-for-tornado/"/>
+  <link rel="canonical" href="http://blog.lecher.tech/2017/11/14/ioc-in-python/"/>
 
 
 
 
 
-  <title>异步RPC框架探究 | Lecher的博客</title>
+  <title>Python中的IOC控制反转初探 | Lecher的博客</title>
   
 
 
@@ -257,7 +257,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://blog.lecher.tech/2017/08/15/rpc-for-tornado/">
+    <link itemprop="mainEntityOfPage" href="http://blog.lecher.tech/2017/11/14/ioc-in-python/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="LiCheng">
@@ -274,7 +274,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">异步RPC框架探究</h1>
+          <h1 class="post-title" itemprop="name headline">Python中的IOC控制反转初探</h1>
         
 
         <div class="post-meta">
@@ -286,8 +286,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-08-15T18:26:28+08:00">
-                2017-08-15
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-14T12:00:00+08:00">
+                2017-11-14
               </time>
             
 
@@ -324,107 +324,93 @@
       
 
       
-        <p>在进行服务拆分的时候，不同服务之间使用HTTP协议来进行数据交互是最常见的一种解决方案。</p>
-<p>之前我在做数据层和业务层分离时，采取的方案是双层Tornado+异步HTTP请求的方式进行数据交互，今天心血来潮，写了下脚本测试服务之间的异步HTTP调用，使用netstat 命令发现TIME_WAIT状态特别多。</p>
-<p>原因很简单，异步HTTP调用使用的是tornado的AsyncHTTPClient，它会在每次请求的时候重新建立一个链接，而不是复用之前的连接。</p>
-<p>就此开启我的优化之旅…</p>
-<h3 id="异步优化"><a href="#异步优化" class="headerlink" title="异步优化"></a>异步优化</h3><p>在查看了网上一些讨论之后，发现有个大牛提出在针对同一个地址进行频繁的HTTP请求时的解决方案：使用长连接，同时还给出了Tornado下的使用方式。</p>
-<p>之前一直以为Tornado中的异步HTTP只有AsyncHTTPClient，经过大牛指点，发现还有一个叫做tornado.curl_httpclient.CurlAsyncHTTPClient的异步HTTP库，这个库的功能就很强大了，可以在请求时保持长连接，极大地减少TIME_WAIT状态。</p>
-<p>在正式使用时候要注意，max_clients参数不要太小，也别太大，在我的机器上测试，max_clients=128是比较中肯的配置。</p>
-<h3 id="简易RPC封装"><a href="#简易RPC封装" class="headerlink" title="简易RPC封装"></a>简易RPC封装</h3><p>之前服务对外暴露自己接口的方式完全跟写API接口一样:</p>
-<ol>
-<li>实现一个基于RequestHandler的业务Handler</li>
-<li>设置路径映射</li>
-</ol>
-<p>这样暴露出来的接口使用很不方便，使用时必须知道该服务这个接口的具体路径，扩展性也很差，今天在写代码的过程中想到了celery处理task的方式，啊哈，装饰器！！仔细想了下，通过合理的设计，完全可以记得减少业务开发方和业务调用方的工作量。</p>
-<h4 id="服务提供端设计"><a href="#服务提供端设计" class="headerlink" title="服务提供端设计"></a>服务提供端设计</h4><p>本着半吊子Pythonic精神，我设想的完成后的RPC框架这样工作：</p>
-<ol>
-<li>用户调用装饰器装饰需要提供成服务的方法，不需要额外定义路径映射</li>
-<li>服务提供端定义一个唯一的RPC接口，所有的服务都通过该接口访问</li>
-<li>框架内部进行方法映射</li>
-</ol>
-<p>废话不多说，上代码:</p>
-<pre class="prettyprint lang-python">
-RpcHandler(RequestHandler):
-    _methods = {}
-
-    def post(self):
-        obj = json.loads(self.request.body)
-        func_name = obj['fun']
-        args = obj['args']
-        kwargs = obj['kwargs']
-        f = self._methods.get(func_name, None)
-        if not f:
-            self.set_status(502, 'no func found err')
-            return
-        result = f(*args, **kwargs)
-        self.write(json.dumps({'ret': result}))
+        <p>公司的管理后台是用SSM开发的，出于好奇，自己也研究了一下SSM框架，然后发现Spring中使用注解的方式实现依赖注入很有意思，<br>恰好自己做的项目依赖的组件越来越多，每次新增一个组件都会使得初始化代码更丑陋了一点，<br>于是我想，有没有一种类似于Spring的依赖注入方式，来解决Python项目中的各种组件依赖问题呢？<br>晚上回去琢磨了一会儿，发现这样的实现其实很简单，利用装饰器就好了。</p>
+<h3 id="设计概要"><a href="#设计概要" class="headerlink" title="设计概要"></a>设计概要</h3><p>理想中的依赖注入有几个点:</p>
+<ul>
+<li>提供一个注册接口用于注册服务</li>
+<li>提供注入接口用于注入服务，就我目前的工程来说，需要满足: 支持异步方法注入</li>
+<li>注册的服务需要支持继承(最核心的是要支持super关键字)</li>
+</ul>
+<p>根据这种思想，假设我的注解中心叫PIOC，那么注册操作为:<br><code>@PIOC.service(&#39;service_name&#39;, &#39;service_require1&#39;, .., &#39;service_requireN&#39;)
+class OneService(SuperClass):
+    def __init__(self, service_require1=None, ..., service_requireN=None):
+        pass</code><br>这里service装饰器第一个参数定义了该服务的检索名称，后面的参数定义了该服务依赖的其它服务，<br>在调用__init__方法时框架会将依赖的服务注入到传入参数中，之所以使用key=value的方式是为了不干扰其它参数</p>
+<p>对应的注入操作为<br><code>@PIOC.require(&#39;service1&#39;, &#39;service2&#39;)
+def func(service1=None, service2=None):
+    pass</code><br>这样，在调用func的时候框架会自动将service1和service2传入到方法的参数中去</p>
+<p>这样的话一个简单的服务注册和注入框架就设计完成了，接下来看代码实现:</p>
+<h3 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h3><pre class="prettyprint lang-python">
+class PIOC(object):
+    _objects = {}
+    _mapping = {}
 
     @classmethod
-    def inject_rpc(cls, func):
-        '''used for inject a function in class to rpc framework.'''
-        cls._methods[func.__name__] = partial(func)
+    def process_dependency(cls, *services):
+        out = {}
+        for service in services:
+            logging.fatal('get service: %s', service)
+            inst = cls._objects.get(service, None)
+            if not inst:
+                cls_def, requirements = cls._mapping[service]
+                logging.fatal('init instance service %s with requirements: %s', service, requirements)
+                inst = cls_def(**cls.process_dependency(*requirements)) if requirements else cls_def()
+                cls._objects[service] = inst
+            out[service] = inst
+        return out
 
     @classmethod
-    def rpc(cls, func):
-        cls._methods[func.__name__] = func
+    def service(cls, name, *requirements, **settings):
+        def outer(cls_def):
+            if name in cls._mapping:
+                raise ValueError('%s already registered' % name)
+            logging.fatal('process inst: %s for service %s', requirements, name)
+            cls._mapping[name] = (cls_def, requirements)
+            if not settings.get('lazy', True):
+                # 是否启用懒惰初始化
+                # 继承关系无法使用lazy参数
+                cls._objects[name] = cls_def(**cls.process_dependency(*requirements)) if requirements else cls_def()
+            return cls_def
 
-        @wraps(func)
-        def y(*args, **kwargs):
-            print args, kwargs
-            return func(*args, **kwargs)
+        return outer
 
-        return y
+    @classmethod
+    def require(cls, *services):
+
+        def outer(func):
+            @wraps(func)
+            def inner(*args, **kwargs):
+                kwargs.update(cls.process_dependency(*services))
+                return func(*args, **kwargs)
+
+            return inner
+
+        return outer
+
+    @classmethod
+    def require_co(cls, *services):
+
+        def outer(func):
+            @tornado.gen.coroutine
+            @wraps(func)
+            def inner(*args, **kwargs):
+                kwargs.update(cls.process_dependency(*services))
+                ret = yield func(*args, **kwargs)
+                raise tornado.gen.Return(ret)
+
+            return inner
+
+        return outer
+
+    @classmethod
+    def destroy(cls):
+        for inst in cls._objects.values():
+            exit_func = getattr(inst, 'destroy', lambda: None)
+            exit_func()
+        cls._objects = {}
 </pre>
 
-<p>使用方法:</p>
-<pre class="prettyprint lang-python">
-@RpcHandler.rpc
-def pure_function():
-    pass
-
-class X():
-    def function_in_class(self):
-        pass
-x = X()
-RpcHandler.inject_rpc(x.function_in_class)
-</pre>
-
-<p>有瑕疵的地方就是这个装饰器无法作用于类方法，因为类方法需要将self也传入，但是在调用装饰器时并没有实例创建，因此增加了一个inject_rpc方法曲线救国…</p>
-<p>这里有意思的是partial函数，使用partial函数时，它会自动将实例绑定成方法的第一个参数，具体原理还需要研究下。</p>
-<p>最后，若要服务生效，一定要将其加到application的handlers配置中去。</p>
-<h4 id="客户端设计"><a href="#客户端设计" class="headerlink" title="客户端设计"></a>客户端设计</h4><p>客户端设计成只要知道方法名就可以调用的方式，上代码:</p>
-<pre class="prettyprint lang-python">
-class RpcClient(object):
-    def __init__(self, host):
-        self.host = host
-
-    def remote_call(self, func, callback, *args, **kwargs):
-        req = HTTPRequest(url=self.host, method='POST', body=json.dumps({
-            'fun': func.__name__,
-            'args': args,
-            'kwargs': kwargs
-        }))
-        cli = tornado.curl_httpclient.CurlAsyncHTTPClient(max_clients=128)
-        cli.fetch(req, callback=partial(self.process_rpc_ret, callback))
-
-    def process_rpc_ret(self, cb, response):
-        if not response.error:
-            obj = json.loads(response.body)
-            cb(obj['ret'])
-        else:
-            print response.code, response.reason
-            cb(None)
-</pre>
-
-<p>使用方法:</p>
-<pre class="prettyprint lang-python">
-cli = RpcClient("localhost:8080/rpc")
-def mycallback(ret):
-    pass
-cli.remote_call(X.function_in_class, mycallback)
-</pre>
-
+<p>这里依赖注入时有两个方法require和require_co，分别对应的非协程版本和协程版本，后者是专门为Tornado定制的,<br>destroy方法用来主动释放资源。</p>
+<h3 id="改进点"><a href="#改进点" class="headerlink" title="改进点"></a>改进点</h3><p>这个框架不是线程安全的，同时服务装饰器的settings参数在面对集成类时会出现异常</p>
 
       
     </div>
@@ -442,11 +428,7 @@ cli.remote_call(X.function_in_class, mycallback)
       
         <div class="post-tags">
           
-            <a href="/tags/RPC/" rel="tag"># RPC</a>
-          
-            <a href="/tags/Tornado/" rel="tag"># Tornado</a>
-          
-            <a href="/tags/MicroService/" rel="tag"># MicroService</a>
+            <a href="/tags/Python/" rel="tag"># Python</a>
           
         </div>
       
@@ -459,8 +441,8 @@ cli.remote_call(X.function_in_class, mycallback)
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/07/12/sorted-set-in-redis/" rel="next" title="Redis实战之：最近参与者功能的实现">
-                <i class="fa fa-chevron-left"></i> Redis实战之：最近参与者功能的实现
+              <a href="/2017/08/15/rpc-for-tornado/" rel="next" title="异步RPC框架探究">
+                <i class="fa fa-chevron-left"></i> 异步RPC框架探究
               </a>
             
           </div>
@@ -468,10 +450,6 @@ cli.remote_call(X.function_in_class, mycallback)
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/11/14/ioc-in-python/" rel="prev" title="Python中的IOC控制反转初探">
-                Python中的IOC控制反转初探 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -596,7 +574,7 @@ cli.remote_call(X.function_in_class, mycallback)
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#异步优化"><span class="nav-number">1.</span> <span class="nav-text">异步优化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#简易RPC封装"><span class="nav-number">2.</span> <span class="nav-text">简易RPC封装</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#服务提供端设计"><span class="nav-number">2.1.</span> <span class="nav-text">服务提供端设计</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#客户端设计"><span class="nav-number">2.2.</span> <span class="nav-text">客户端设计</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#设计概要"><span class="nav-number">1.</span> <span class="nav-text">设计概要</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码实现"><span class="nav-number">2.</span> <span class="nav-text">代码实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#改进点"><span class="nav-number">3.</span> <span class="nav-text">改进点</span></a></li></ol></div>
             
 
           </div>
