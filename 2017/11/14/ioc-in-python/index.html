@@ -102,7 +102,7 @@
 <meta property="og:site_name" content="Lecher的博客">
 <meta property="og:description" content="公司的管理后台是用SSM开发的，出于好奇，自己也研究了一下SSM框架，然后发现Spring中使用注解的方式实现依赖注入很有意思，恰好自己做的项目依赖的组件越来越多，每次新增一个组件都会使得初始化代码更丑陋了一点，于是我想，有没有一种类似于Spring的依赖注入方式，来解决Python项目中的各种组件依赖问题呢？晚上回去琢磨了一会儿，发现这样的实现其实很简单，利用装饰器就好了。 设计概要理想中的依赖">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-11-14T03:49:50.613Z">
+<meta property="og:updated_time" content="2017-11-14T03:53:44.677Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Python中的IOC控制反转初探">
 <meta name="twitter:description" content="公司的管理后台是用SSM开发的，出于好奇，自己也研究了一下SSM框架，然后发现Spring中使用注解的方式实现依赖注入很有意思，恰好自己做的项目依赖的组件越来越多，每次新增一个组件都会使得初始化代码更丑陋了一点，于是我想，有没有一种类似于Spring的依赖注入方式，来解决Python项目中的各种组件依赖问题呢？晚上回去琢磨了一会儿，发现这样的实现其实很简单，利用装饰器就好了。 设计概要理想中的依赖">
@@ -324,7 +324,7 @@
       
 
       
-        <p>公司的管理后台是用SSM开发的，出于好奇，自己也研究了一下SSM框架，然后发现Spring中使用注解的方式实现依赖注入很有意思，<br>恰好自己做的项目依赖的组件越来越多，每次新增一个组件都会使得初始化代码更丑陋了一点，<br>于是我想，有没有一种类似于Spring的依赖注入方式，来解决Python项目中的各种组件依赖问题呢？<br>晚上回去琢磨了一会儿，发现这样的实现其实很简单，利用装饰器就好了。</p>
+        <p>公司的管理后台是用SSM开发的，出于好奇，自己也研究了一下SSM框架，然后发现Spring中使用注解的方式实现依赖注入很有意思，恰好自己做的项目依赖的组件越来越多，每次新增一个组件都会使得初始化代码更丑陋了一点，于是我想，有没有一种类似于Spring的依赖注入方式，来解决Python项目中的各种组件依赖问题呢？<br>晚上回去琢磨了一会儿，发现这样的实现其实很简单，利用装饰器就好了。</p>
 <h3 id="设计概要"><a href="#设计概要" class="headerlink" title="设计概要"></a>设计概要</h3><p>理想中的依赖注入有几个点:</p>
 <ul>
 <li>提供一个注册接口用于注册服务</li>
@@ -338,8 +338,7 @@ class OneService(SuperClass):
     def __init__(self, service_require1=None, ..., service_requireN=None):
         pass
 </pre>
-这里service装饰器第一个参数定义了该服务的检索名称，后面的参数定义了该服务依赖的其它服务，
-在调用\_\_init\_\_方法时框架会将依赖的服务注入到传入参数中，之所以使用key=value的方式是为了不干扰其它参数
+这里service装饰器第一个参数定义了该服务的检索名称，后面的参数定义了该服务依赖的其它服务，在调用__init__方法时框架会将依赖的服务注入到传入参数中，之所以使用key=value的方式是为了不干扰其它参数
 
 对应的注入操作为
 <pre class="prettyprint lang-python">
@@ -348,10 +347,10 @@ def func(service1=None, service2=None):
     pass
 </pre>
 这样，在调用func的时候框架会自动将service1和service2传入到方法的参数中去
-
 这样的话一个简单的服务注册和注入框架就设计完成了，接下来看代码实现:
 
 ### 代码实现
+
 <pre class="prettyprint lang-python">
 class PIOC(object):
     _objects = {}
