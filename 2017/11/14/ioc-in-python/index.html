@@ -102,7 +102,7 @@
 <meta property="og:site_name" content="Lecher的博客">
 <meta property="og:description" content="公司的管理后台是用SSM开发的，出于好奇，自己也研究了一下SSM框架，然后发现Spring中使用注解的方式实现依赖注入很有意思，恰好自己做的项目依赖的组件越来越多，每次新增一个组件都会使得初始化代码更丑陋了一点，于是我想，有没有一种类似于Spring的依赖注入方式，来解决Python项目中的各种组件依赖问题呢？晚上回去琢磨了一会儿，发现这样的实现其实很简单，利用装饰器就好了。 设计概要理想中的依赖">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-11-14T03:46:05.926Z">
+<meta property="og:updated_time" content="2017-11-14T03:49:50.613Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Python中的IOC控制反转初探">
 <meta name="twitter:description" content="公司的管理后台是用SSM开发的，出于好奇，自己也研究了一下SSM框架，然后发现Spring中使用注解的方式实现依赖注入很有意思，恰好自己做的项目依赖的组件越来越多，每次新增一个组件都会使得初始化代码更丑陋了一点，于是我想，有没有一种类似于Spring的依赖注入方式，来解决Python项目中的各种组件依赖问题呢？晚上回去琢磨了一会儿，发现这样的实现其实很简单，利用装饰器就好了。 设计概要理想中的依赖">
@@ -331,15 +331,28 @@
 <li>提供注入接口用于注入服务，就我目前的工程来说，需要满足: 支持异步方法注入</li>
 <li>注册的服务需要支持继承(最核心的是要支持super关键字)</li>
 </ul>
-<p>根据这种思想，假设我的注解中心叫PIOC，那么注册操作为:<br><code>@PIOC.service(&#39;service_name&#39;, &#39;service_require1&#39;, .., &#39;service_requireN&#39;)
+<p>根据这种思想，假设我的注解中心叫PIOC，那么注册操作为:</p>
+<pre class="prettyprint lang-python">
+@PIOC.service('service_name', 'service_require1', .., 'service_requireN')
 class OneService(SuperClass):
     def __init__(self, service_require1=None, ..., service_requireN=None):
-        pass</code><br>这里service装饰器第一个参数定义了该服务的检索名称，后面的参数定义了该服务依赖的其它服务，<br>在调用__init__方法时框架会将依赖的服务注入到传入参数中，之所以使用key=value的方式是为了不干扰其它参数</p>
-<p>对应的注入操作为<br><code>@PIOC.require(&#39;service1&#39;, &#39;service2&#39;)
+        pass
+</pre>
+这里service装饰器第一个参数定义了该服务的检索名称，后面的参数定义了该服务依赖的其它服务，
+在调用\_\_init\_\_方法时框架会将依赖的服务注入到传入参数中，之所以使用key=value的方式是为了不干扰其它参数
+
+对应的注入操作为
+<pre class="prettyprint lang-python">
+@PIOC.require('service1', 'service2')
 def func(service1=None, service2=None):
-    pass</code><br>这样，在调用func的时候框架会自动将service1和service2传入到方法的参数中去</p>
-<p>这样的话一个简单的服务注册和注入框架就设计完成了，接下来看代码实现:</p>
-<h3 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h3><pre class="prettyprint lang-python">
+    pass
+</pre>
+这样，在调用func的时候框架会自动将service1和service2传入到方法的参数中去
+
+这样的话一个简单的服务注册和注入框架就设计完成了，接下来看代码实现:
+
+### 代码实现
+<pre class="prettyprint lang-python">
 class PIOC(object):
     _objects = {}
     _mapping = {}
@@ -348,11 +361,11 @@ class PIOC(object):
     def process_dependency(cls, *services):
         out = {}
         for service in services:
-            logging.fatal('get service: %s', service)
+            logging.debug('get service: %s', service)
             inst = cls._objects.get(service, None)
             if not inst:
                 cls_def, requirements = cls._mapping[service]
-                logging.fatal('init instance service %s with requirements: %s', service, requirements)
+                logging.debug('init instance service %s with requirements: %s', service, requirements)
                 inst = cls_def(**cls.process_dependency(*requirements)) if requirements else cls_def()
                 cls._objects[service] = inst
             out[service] = inst
@@ -363,7 +376,7 @@ class PIOC(object):
         def outer(cls_def):
             if name in cls._mapping:
                 raise ValueError('%s already registered' % name)
-            logging.fatal('process inst: %s for service %s', requirements, name)
+            logging.debug('process inst: %s for service %s', requirements, name)
             cls._mapping[name] = (cls_def, requirements)
             if not settings.get('lazy', True):
                 # 是否启用懒惰初始化
@@ -574,7 +587,7 @@ class PIOC(object):
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#设计概要"><span class="nav-number">1.</span> <span class="nav-text">设计概要</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码实现"><span class="nav-number">2.</span> <span class="nav-text">代码实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#改进点"><span class="nav-number">3.</span> <span class="nav-text">改进点</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#设计概要"><span class="nav-number">1.</span> <span class="nav-text">设计概要</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#改进点"><span class="nav-number">2.</span> <span class="nav-text">改进点</span></a></li></ol></div>
             
 
           </div>

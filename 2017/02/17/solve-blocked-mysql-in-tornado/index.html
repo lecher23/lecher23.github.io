@@ -78,7 +78,7 @@
 <link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Python,Tornado,Web," />
+  <meta name="keywords" content="Python,Web,Tornado," />
 
 
 
@@ -95,7 +95,7 @@
 
 
 <meta name="description" content="1.介绍使用多Tornado的都知道,在Tornado中所有的操作都建议采用异步的形式,但是实际情况是很多的操作并没有异步版本, 比如现在要解决的就是MySQL的同步阻塞问题.通过调查别家大牛的处理方案, 个人觉得最简单,对代码修改程度最小的当属:线程池+MySQL连接池的方案. 2.方案概述使用这种方案,核心有下面几点:  借助tornado.concurrent.run_on_executor">
-<meta name="keywords" content="Python,Tornado,Web">
+<meta name="keywords" content="Python,Web,Tornado">
 <meta property="og:type" content="article">
 <meta property="og:title" content="在Tornado中将MySQL同步操作封装到线程池中处理">
 <meta property="og:url" content="http://blog.lecher.tech/2017/02/17/solve-blocked-mysql-in-tornado/index.html">
@@ -391,9 +391,9 @@ def query(self, *args, **kwargs):
           
             <a href="/tags/Python/" rel="tag"># Python</a>
           
-            <a href="/tags/Tornado/" rel="tag"># Tornado</a>
-          
             <a href="/tags/Web/" rel="tag"># Web</a>
+          
+            <a href="/tags/Tornado/" rel="tag"># Tornado</a>
           
         </div>
       
