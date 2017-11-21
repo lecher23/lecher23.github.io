@@ -102,7 +102,7 @@
 <meta property="og:site_name" content="Lecher的博客">
 <meta property="og:description" content="1.介绍使用多Tornado的都知道,在Tornado中所有的操作都建议采用异步的形式,但是实际情况是很多的操作并没有异步版本, 比如现在要解决的就是MySQL的同步阻塞问题.通过调查别家大牛的处理方案, 个人觉得最简单,对代码修改程度最小的当属:线程池+MySQL连接池的方案. 2.方案概述使用这种方案,核心有下面几点:  借助tornado.concurrent.run_on_executor">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-11-21T07:49:16.951Z">
+<meta property="og:updated_time" content="2017-11-21T07:50:50.903Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="在Tornado中将MySQL同步操作封装到线程池中处理">
 <meta name="twitter:description" content="1.介绍使用多Tornado的都知道,在Tornado中所有的操作都建议采用异步的形式,但是实际情况是很多的操作并没有异步版本, 比如现在要解决的就是MySQL的同步阻塞问题.通过调查别家大牛的处理方案, 个人觉得最简单,对代码修改程度最小的当属:线程池+MySQL连接池的方案. 2.方案概述使用这种方案,核心有下面几点:  借助tornado.concurrent.run_on_executor">
@@ -371,7 +371,7 @@ def query(self, *args, **kwargs):
 <li>关于异常处理:交由外层逻辑判断,内部不做判断</li>
 <li>关于析构:可以在线程池退出时断开所有的连接</li>
 </ul>
-<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>使用run_on_executor装饰后,就可以将被修饰的方法当做普通的异步方法使用,<br>使用时可以使用yield tornado.gen.Task() 结合 tornado.gen.coroutine的方法实现同步代码异步效果.</p>
+<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><p>使用run_on_executor装饰后,就可以将被修饰的方法当做普通的异步方法使用,<br>使用时可以使用yield tornado.gen.Task() 结合 tornado.gen.coroutine的方法实现同步代码异步效果.</p>
 
       
     </div>
@@ -543,7 +543,7 @@ def query(self, *args, **kwargs):
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-介绍"><span class="nav-number">1.</span> <span class="nav-text">1.介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-方案概述"><span class="nav-number">2.</span> <span class="nav-text">2.方案概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-run-on-executor代码解析"><span class="nav-number">3.</span> <span class="nav-text">3.run_on_executor代码解析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-ThreadPoolExecutor的submit方法"><span class="nav-number">4.</span> <span class="nav-text">4.ThreadPoolExecutor的submit方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-MySQL连接池"><span class="nav-number">5.</span> <span class="nav-text">5.MySQL连接池</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用"><span class="nav-number"></span> <span class="nav-text">使用</span></a></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-介绍"><span class="nav-number">1.</span> <span class="nav-text">1.介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-方案概述"><span class="nav-number">2.</span> <span class="nav-text">2.方案概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-run-on-executor代码解析"><span class="nav-number">3.</span> <span class="nav-text">3.run_on_executor代码解析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-ThreadPoolExecutor的submit方法"><span class="nav-number">4.</span> <span class="nav-text">4.ThreadPoolExecutor的submit方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-MySQL连接池"><span class="nav-number">5.</span> <span class="nav-text">5.MySQL连接池</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用"><span class="nav-number">6.</span> <span class="nav-text">使用</span></a></li></ol></div>
             
 
           </div>

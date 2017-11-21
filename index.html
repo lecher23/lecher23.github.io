@@ -1943,7 +1943,7 @@ def query(self, *args, **kwargs):
 <li>关于异常处理:交由外层逻辑判断,内部不做判断</li>
 <li>关于析构:可以在线程池退出时断开所有的连接</li>
 </ul>
-<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>使用run_on_executor装饰后,就可以将被修饰的方法当做普通的异步方法使用,<br>使用时可以使用yield tornado.gen.Task() 结合 tornado.gen.coroutine的方法实现同步代码异步效果.</p>
+<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><p>使用run_on_executor装饰后,就可以将被修饰的方法当做普通的异步方法使用,<br>使用时可以使用yield tornado.gen.Task() 结合 tornado.gen.coroutine的方法实现同步代码异步效果.</p>
 
           
         
