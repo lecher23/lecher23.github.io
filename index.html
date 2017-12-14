@@ -257,6 +257,144 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.lecher.tech/2017/12/13/crawl_xigua/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="LiCheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lecher的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/12/13/crawl_xigua/" itemprop="url">西瓜视频的视频爬取</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-13T18:19:09+08:00">
+                2017-12-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="西瓜视频网站视频爬取"><a href="#西瓜视频网站视频爬取" class="headerlink" title="西瓜视频网站视频爬取"></a>西瓜视频网站视频爬取</h2><h3 id="起因"><a href="#起因" class="headerlink" title="起因"></a>起因</h3><pre><code>最近接到产品的一个新需求: 将西瓜视频网站上的视频爬下来，我们内部用来&quot;耍耍&quot;，恩，抱着学习的态度，义不容辞的答应了，嘿嘿嘿。
+</code></pre><h3 id="第一步，搞定主页"><a href="#第一步，搞定主页" class="headerlink" title="第一步，搞定主页"></a>第一步，搞定主页</h3><pre><code>知彼知己乃爬虫实现的第一原则，先打开西瓜主页(https://www.ixigua.com)看看源代码，本以为所有视频都在HTML里面，等我右键查看源码的时候才发现没这么简单，所有的数据全部通过JS异步加载的(代码就不贴了，影响阅读)。自己又不想去看那些加密过的JS代码，怎么办呢？
+
+看着Chrome浏览器，灵机一动，为何不看看整个页面加载时的网络请求过程呢！！后面的情节就简单了，按F12打开调试模式，点击右边的Network，再刷新下页面，出来了好多的请求，反正页面刷新出数据了，那么请求一定是其中的一个，仔细查找后确认了信使URL(https://www.ixigua.com/api/pc/feed/?min_behot_time=0&amp;category=video_new&amp;utm_source=toutiao&amp;widen=1&amp;tadrequire=true&amp;as=A1B51A73C2D4D2C&amp;cp=5A3234BD92ACFE1)，通过这个URL拿取数据后，发现是一个JSON字符串，里面包含了主页上要显示的视频信息，大概有标题，图片，视频ID(这个很重要，后面要用到的)， 视频访问页面这些信息。
+
+到这里，主页数据可以说是在我掌控之中了，但是看着这个信使URL，我对as和cp这两个参数产生了兴趣，还是看看人家是怎么构造出来的吧，万一有坑就蛋疼了。查找方法很简单，先查看主页源代码，然后一个个点开它引用的JS文件，再查找&quot;cp&quot;的关键字，很快查到蛛丝马迹了(https://s3b.pstatp.com/toutiao/xigua_video/pc/static/js/vendor.fb60211a255e4c9b884b.js)，大致看了cp的生成逻辑，其中一段很有意思: ```if(8!=e.length)return{as:&quot;479BB4B7254C150&quot;,cp:&quot;7E0AC8874BB0985&quot;};```, 既然这样，那我就不客气了，果断将信使URL中的as和cp替换成这两个，发现work fine，那主页入口就是你咯！
+</code></pre><h3 id="第二部，获取视频地址"><a href="#第二部，获取视频地址" class="headerlink" title="第二部，获取视频地址"></a>第二部，获取视频地址</h3><pre><code>主页视频数据中并没有视频的流地址，那先通过视频访问页面看看情况吧，我使用的小白鼠为(https://www.ixigua.com/group/6498538058265133581/)，访问后查看源代码，果不其然，还是JS异步加载。
+
+老规矩，使用Chrome开发者工具看网络交互，这次并没有这么顺利，眼睁睁看着页面拿到了视频的地址，并写入到了网页元素的src中，但是在网络交互的数据中并没有看到相关的数据！
+
+不甘心，一个个请求看，功夫不负有心人，一条请求在我的鹰眼下漏出马脚(https://ib.365yg.com/video/urls/v/1/toutiao/mp4/0b857583f17d4a649cc1c09841ef7126?r=34005713645696556&amp;s=4084222908&amp;callback=tt_playerpjyjm)，该请求的数据中有这么一段: ``` &quot;main_url&quot;:&quot;aHR0cDovL3YzLXR0Lml4aWd1YS5jb20vNzg2ZTE1YmYwMmJhNzc4M2FiYmQyMzYyMDViNzAwNzUvNWEzMjUxMTIvdmlkZW8vbS8yMjA3ZDRjZmY5YjE0NjQ0ODU3YTQ2NmI2MDk2YzM2MTg5NzExNTJlNDZmMDAwMGQzZTYxMjU4YjM4MC8=&quot;```, 命名很耀眼，链接很有气质，这tm不是base64加密么，将这一段加密文本解密，得到url: http://v3-tt.ixigua.com/786e15bf02ba7783abbd236205b70075/5a325112/video/m/2207d4cff9b14644857a466b6096c3618971152e46f0000d3e61258b380/，访问一下，恩，可以用。
+
+再来研究一下我们的解析URL，0b857583f17d4a649cc1c09841ef7126这个就是前面提到的视频ID了，先将它替换成其它视频ID访问下，出错了。。看来后面的参数是保证请求有效的卫士。看来又得去看JS代码了(我是真的不想看加密后的代码。。。)，找目标JS文件的方式和前面的方式一样，不再啰嗦，代码看起来很蛋疼，这里有个小技巧，打开一个能格式化JS代码的编辑器，将加密后的JS文件拷贝到它里面，然后格式化一下，代码可读性立马增加不少。
+
+大致看了下JS代码后，找到核心逻辑:
+</code></pre><p><pre class="prettyprint lang-javascript"><br>n.crc32 = function (t) {var e = document.createElement(“a”);e.href = t;var n = function () {for (var t = 0, e = new Array(256), n = 0; 256 != n; ++n)t = n, t = 1 &amp; t ? -306674912 ^ t &gt;&gt;&gt; 1 : t &gt;&gt;&gt; 1, t = 1 &amp; t ? -306674912 ^ t &gt;&gt;&gt; 1 : t &gt;&gt;&gt; 1, t = 1 &amp; t ? -306674912 ^ t &gt;&gt;&gt; 1 : t &gt;&gt;&gt; 1, t = 1 &amp; t ? -306674912 ^ t &gt;&gt;&gt; 1 : t &gt;&gt;&gt; 1, t = 1 &amp; t ? -306674912 ^ t &gt;&gt;&gt; 1 : t &gt;&gt;&gt; 1, t = 1 &amp; t ? -306674912 ^ t &gt;&gt;&gt; 1 : t &gt;&gt;&gt; 1, t = 1 &amp; t ? -306674912 ^ t &gt;&gt;&gt; 1 : t &gt;&gt;&gt; 1, t = 1 &amp; t ? -306674912 ^ t &gt;&gt;&gt; 1 : t &gt;&gt;&gt; 1, e[n] = t;return “undefined” != typeof Int32Array ? new Int32Array(e) : e}(), o = function (t) {for (var e, o, r = -1, i = 0, a = t.length; i &lt; a;)e = t.charCodeAt(i++), e &lt; 128 ? r = r &gt;&gt;&gt; 8 ^ n[255 &amp; (r ^ e)] : e &lt; 2048 ? (r = r &gt;&gt;&gt; 8 ^ n[255 &amp; (r ^ (192 | e &gt;&gt; 6 &amp; 31))], r = r &gt;&gt;&gt; 8 ^ n[255 &amp; (r ^ (128 | 63 &amp; e))]) : e &gt;= 55296 &amp;&amp; e &lt; 57344 ? (e = (1023 &amp; e) + 64, o = 1023 &amp; t.charCodeAt(i++), r = r &gt;&gt;&gt; 8 ^ n[255 &amp; (r ^ (240 | e &gt;&gt; 8 &amp; 7))], r = r &gt;&gt;&gt; 8 ^ n[255 &amp; (r ^ (128 | e &gt;&gt; 2 &amp; 63))], r = r &gt;&gt;&gt; 8 ^ n[255 &amp; (r ^ (128 | o &gt;&gt; 6 &amp; 15 | (3 &amp; e) &lt;&lt; 4))], r = r &gt;&gt;&gt; 8 ^ n[255 &amp; (r ^ (128 | 63 &amp; o))]) : (r = r &gt;&gt;&gt; 8 ^ n[255 &amp; (r ^ (224 | e &gt;&gt; 12 &amp; 15))], r = r &gt;&gt;&gt; 8 ^ n[255 &amp; (r ^ (128 | e &gt;&gt; 6 &amp; 63))], r = r &gt;&gt;&gt; 8 ^ n[255 &amp; (r ^ (128 | 63 &amp; e))]);return r ^ -1}, r = e.pathname + “?r=” + Math.random().toString(10).substring(2);”/“ != r[0] &amp;&amp; (r = “/“ + r);var i = o(r) &gt;&gt;&gt; 0, a = location.protocol.indexOf(“http”) &gt; -1;return (a ? [location.protocol, e.hostname] : [“http:”, e.hostname]).join(“//“) + r + “&amp;s=” + i}<br></pre><br>    这一段代码写的很蛋疼，反正就是根据链接的路径和一个随机参数r去生成参数s的值。核心逻辑有了，r和s的生成自然就容易了，我的目标是用Python实现自动爬取，先是尝试将这段逻辑按照Python的语法转换一遍，但是结果总是不一致，正头疼时候，想到，为啥不直接用Python解释JS代码执行，这样也不用去研究逻辑了，顿时感觉自己贼tm机智。去网上搜了一下，Python还真的有JS执行库：PyExecJS，安装库后，将s和r的生成逻辑代码稍微改一下(去掉其中的DOM操作)放入到库中等待调用，验证了一下，基本无误，最后就是参数中的callback还不清楚怎么填写的，不过影响不大后面再弄，因为这个API已经可以给我吐出视频真实地址了。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><pre><code>我觉得爬虫最大的乐趣在于和看不见的网页开发者进行攻防的过程，对方防守自己的网站，不让爬虫拿取自己珍贵的数据，而爬虫开发者则为进攻方，为了拿到数据&quot;不择手段&quot;。这个过程有点类似解谜的过程，中途还要转换思维角度，站在网页开发者的角度去思考问题。 对我来说，这次的爬虫行动给我带来了不错成就感和乐趣，我非常享受这种感觉^^。
+
+Ps：具体的爬虫代码可以去我的github(https://github.com/lecher23)围观～
+</code></pre>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://blog.lecher.tech/2017/11/14/ioc-in-python/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2121,176 +2259,13 @@ def query(self, *args, **kwargs):
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://blog.lecher.tech/2017/01/22/transform-simlehttp/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="LiCheng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lecher的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/01/22/transform-simlehttp/" itemprop="url">SimpleHTTPServer的改造</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-01-22T10:19:09+08:00">
-                2017-01-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="起因"><a href="#起因" class="headerlink" title="起因"></a>起因</h3><p>最近要写一个工具给商务部门的人使用,而我又不知道用Python写界面,于是想到了使用HTML<br>页面来做界面的IDEAL,但是我又不想自己的工具以来太多的三方库,那就使用SimpleHTTPServer<br>吧.</p>
-<h3 id="开始使用"><a href="#开始使用" class="headerlink" title="开始使用"></a>开始使用</h3><p>SimpleHTTPServer的典型使用方式为:</p>
-<pre class="prettyprint lang-python">
-httpd = BaseHTTPServer.HTTPServer(('0.0.0.0', port), SimpleHTTPServer.SimpleHTTPRequestHandler)
-sa = httpd.socket.getsockname()
-httpd.serve_forever()
-</pre>
-
-<p>问题是SimpleHTTPRequestHandler只是用于静态页面,可以看它的源代码中是怎么处理的:</p>
-<pre class="prettyprint lang-python">
-    def do_GET(self):
-        """Serve a GET request."""
-        f = self.send_head()
-        if f:
-            try:
-                self.copyfile(f, self.wfile)
-            finally:
-                f.close()
-</pre>
-
-<p>函数send_head的功能是解析path中的文件名称, 并读取本地对应的文件并返回<br><br>函数copyfile的功能就是将文件内容写入到网络通道.<br><br>现在我想用SimpleHTTPServer实现生成动态网页的功能,那该怎么办呢?</p>
-<h3 id="改造"><a href="#改造" class="headerlink" title="改造"></a>改造</h3><p>看了源代码,最简单的解决方式就是继承SimpleHTTPRequestHandler并重写do_GET方法,然后在这里加上自己的处理逻辑<br><br>比如我的目标是能够让Web服务器在收到process.html?param=value这个请求时能够根据value<br>的值进行动态处理,修改后的代码如下</p>
-<pre class="prettyprint lang-python">
-    def do_GET(self):
-        if self.path.startswith('/process.html'):
-            try:
-                data = self.process_request()
-                self.gen_file(data)
-            except Exception, e:
-                self.gen_file(e)
-            f = self.send_head_1('result.html')
-        else:
-            f = self.send_head()
-</pre>
-
-<p>process_request():根据请求数据生成动态内容<br><br>gen_file():根据动态内容生成本地文件<br><br>send_head_1():读取指定的文件并返回<br><br>这里比较trick的就是由动态数据生成静态页面的过程:</p>
-<ul>
-<li>预先准备了一个模板文件, 其中的动态内容用特殊字符串标记</li>
-<li>生成动态内容后,读取模板文件,将特殊字符串标记替换为动态内容</li>
-<li>将替换后的内容保存到result.html中,并交由handler去读取内容</li>
-<li>后续的操作不变</li>
-</ul>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>至此,一个简单的Handler就改造完毕, 它可以动态处理指定URI的GET请求, 或者直接读取<br>本地的文件返回给用户,基本上满足我这个工具的使用场景了.<br><br>但是从工程上来讲,这个解决方案是快速却又粗糙的:</p>
-<ul>
-<li>每次都需要读取模板文件,并没有将它缓存起来</li>
-<li>动态数据生成后,没必要再创建一个临时的result.html文件,然后去读取,直接将生成的内容<br>写到管道中就行了.</li>
-<li>路由方案选择的是前缀匹配,而且都是写死的,并不能动态配置</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+  </nav>
+
 
 
           </div>
@@ -2334,7 +2309,7 @@ httpd.serve_forever()
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-count">11</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -2347,7 +2322,7 @@ httpd.serve_forever()
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-count">11</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
