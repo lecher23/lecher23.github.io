@@ -94,18 +94,18 @@
 
 
 
-<meta name="description" content="西瓜视频网站视频爬取起因　　最近接到产品的一个新需求: 将西瓜视频网站上的视频爬下来，我们内部用来”耍耍”，恩，抱着学习的态度，义不容辞的答应了，嘿嘿嘿。 第一步，搞定主页　　知彼知己乃爬虫实现的第一原则，先打开西瓜主页(https://www.ixigua.com)看看源代码，本以为所有视频都在HTML里面，等我右键查看源码的时候才发现没这么简单，所有的数据全部通过JS异步加载的(代码就不贴了，">
+<meta name="description" content="西瓜视频网站视频爬取起因　　最近接到产品的一个新需求: 将西瓜视频网站上的视频爬下来，我们内部用来”耍耍”，恩，抱着学习的态度，义不容辞的答应了，嘿嘿嘿。 第一步，搞定主页　　知彼知己乃爬虫实现的第一原则，先打开西瓜主页( https://www.ixigua.com )看看源代码，本以为所有视频都在HTML里面，等我右键查看源码的时候才发现没这么简单，所有的数据全部通过JS异步加载的(代码就不贴">
 <meta name="keywords" content="Python,Crawler">
 <meta property="og:type" content="article">
 <meta property="og:title" content="西瓜视频的视频爬取">
 <meta property="og:url" content="http://blog.lecher.tech/2017/12/13/crawl_xigua/index.html">
 <meta property="og:site_name" content="Lecher的博客">
-<meta property="og:description" content="西瓜视频网站视频爬取起因　　最近接到产品的一个新需求: 将西瓜视频网站上的视频爬下来，我们内部用来”耍耍”，恩，抱着学习的态度，义不容辞的答应了，嘿嘿嘿。 第一步，搞定主页　　知彼知己乃爬虫实现的第一原则，先打开西瓜主页(https://www.ixigua.com)看看源代码，本以为所有视频都在HTML里面，等我右键查看源码的时候才发现没这么简单，所有的数据全部通过JS异步加载的(代码就不贴了，">
+<meta property="og:description" content="西瓜视频网站视频爬取起因　　最近接到产品的一个新需求: 将西瓜视频网站上的视频爬下来，我们内部用来”耍耍”，恩，抱着学习的态度，义不容辞的答应了，嘿嘿嘿。 第一步，搞定主页　　知彼知己乃爬虫实现的第一原则，先打开西瓜主页( https://www.ixigua.com )看看源代码，本以为所有视频都在HTML里面，等我右键查看源码的时候才发现没这么简单，所有的数据全部通过JS异步加载的(代码就不贴">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-12-14T11:05:24.296Z">
+<meta property="og:updated_time" content="2017-12-14T11:06:46.737Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="西瓜视频的视频爬取">
-<meta name="twitter:description" content="西瓜视频网站视频爬取起因　　最近接到产品的一个新需求: 将西瓜视频网站上的视频爬下来，我们内部用来”耍耍”，恩，抱着学习的态度，义不容辞的答应了，嘿嘿嘿。 第一步，搞定主页　　知彼知己乃爬虫实现的第一原则，先打开西瓜主页(https://www.ixigua.com)看看源代码，本以为所有视频都在HTML里面，等我右键查看源码的时候才发现没这么简单，所有的数据全部通过JS异步加载的(代码就不贴了，">
+<meta name="twitter:description" content="西瓜视频网站视频爬取起因　　最近接到产品的一个新需求: 将西瓜视频网站上的视频爬下来，我们内部用来”耍耍”，恩，抱着学习的态度，义不容辞的答应了，嘿嘿嘿。 第一步，搞定主页　　知彼知己乃爬虫实现的第一原则，先打开西瓜主页( https://www.ixigua.com )看看源代码，本以为所有视频都在HTML里面，等我右键查看源码的时候才发现没这么简单，所有的数据全部通过JS异步加载的(代码就不贴">
 
 
 
@@ -325,7 +325,7 @@
 
       
         <h2 id="西瓜视频网站视频爬取"><a href="#西瓜视频网站视频爬取" class="headerlink" title="西瓜视频网站视频爬取"></a>西瓜视频网站视频爬取</h2><h3 id="起因"><a href="#起因" class="headerlink" title="起因"></a>起因</h3><p>　　最近接到产品的一个新需求: 将西瓜视频网站上的视频爬下来，我们内部用来”耍耍”，恩，抱着学习的态度，义不容辞的答应了，嘿嘿嘿。</p>
-<h3 id="第一步，搞定主页"><a href="#第一步，搞定主页" class="headerlink" title="第一步，搞定主页"></a>第一步，搞定主页</h3><p>　　知彼知己乃爬虫实现的第一原则，先打开西瓜主页(<a href="https://www.ixigua.com)看看源代码，本以为所有视频都在HTML里面，等我右键查看源码的时候才发现没这么简单，所有的数据全部通过JS异步加载的(代码就不贴了，影响阅读)。自己又不想去看那些加密过的JS代码，怎么办呢？" target="_blank" rel="external">https://www.ixigua.com)看看源代码，本以为所有视频都在HTML里面，等我右键查看源码的时候才发现没这么简单，所有的数据全部通过JS异步加载的(代码就不贴了，影响阅读)。自己又不想去看那些加密过的JS代码，怎么办呢？</a></p>
+<h3 id="第一步，搞定主页"><a href="#第一步，搞定主页" class="headerlink" title="第一步，搞定主页"></a>第一步，搞定主页</h3><p>　　知彼知己乃爬虫实现的第一原则，先打开西瓜主页( <a href="https://www.ixigua.com" target="_blank" rel="external">https://www.ixigua.com</a> )看看源代码，本以为所有视频都在HTML里面，等我右键查看源码的时候才发现没这么简单，所有的数据全部通过JS异步加载的(代码就不贴了，影响阅读)。自己又不想去看那些加密过的JS代码，怎么办呢？</p>
 <p>　　看着Chrome浏览器，灵机一动，为何不看看整个页面加载时的网络请求过程呢！！后面的情节就简单了，按F12打开调试模式，点击右边的Network，再刷新下页面，出来了好多的请求，反正页面刷新出数据了，那么请求一定是其中的一个，仔细查找后确认了信使URL( <a href="https://www.ixigua.com/api/pc/feed/?min\_behot\_time=0&amp;category=video\_new&amp;utm\_source=toutiao&amp;widen=1&amp;tadrequire=true&amp;as=A1B51A73C2D4D2C&amp;cp=5A3234BD92ACFE1" target="_blank" rel="external">https://www.ixigua.com/api/pc/feed/?min\_behot\_time=0&amp;category=video\_new&amp;utm\_source=toutiao&amp;widen=1&amp;tadrequire=true&amp;as=A1B51A73C2D4D2C&amp;cp=5A3234BD92ACFE1</a> )，通过这个URL拿取数据后，发现是一个JSON字符串，里面包含了主页上要显示的视频信息，大概有标题，图片，视频ID(这个很重要，后面要用到的)， 视频访问页面这些信息。</p>
 <p>　　到这里，主页数据可以说是在我掌控之中了，但是看着这个信使URL，我对as和cp这两个参数产生了兴趣，还是看看人家是怎么构造出来的吧，万一有坑就蛋疼了。查找方法很简单，先查看主页源代码，然后一个个点开它引用的JS文件，再查找”cp”的关键字，很快查到蛛丝马迹了( <a href="https://s3b.pstatp.com/toutiao/xigua\_video/pc/static/js/vendor.fb60211a255e4c9b884b.js" target="_blank" rel="external">https://s3b.pstatp.com/toutiao/xigua\_video/pc/static/js/vendor.fb60211a255e4c9b884b.js</a> )，大致看了cp的生成逻辑，其中一段很有意思: <code>if(8!=e.length)return{as:&quot;479BB4B7254C150&quot;,cp:&quot;7E0AC8874BB0985&quot;};</code>, 既然这样，那我就不客气了，果断将信使URL中的as和cp替换成这两个，发现work fine，那主页入口就是你咯！</p>
 <h3 id="第二步，获取视频地址"><a href="#第二步，获取视频地址" class="headerlink" title="第二步，获取视频地址"></a>第二步，获取视频地址</h3><p>　　主页视频数据中并没有视频的流地址，那先通过视频访问页面看看情况吧，我使用的小白鼠为( <a href="https://www.ixigua.com/group/6498538058265133581/" target="_blank" rel="external">https://www.ixigua.com/group/6498538058265133581/</a> )，访问后查看源代码，果不其然，还是JS异步加载。</p>
