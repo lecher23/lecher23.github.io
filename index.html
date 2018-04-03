@@ -257,6 +257,179 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.lecher.tech/2018/04/03/with-statement-in-python/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="LiCheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lecher的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/04/03/with-statement-in-python/" itemprop="url">翻译-Python中的with语句</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-03T17:42:20+08:00">
+                2018-04-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>本文主要介绍Python 中的with语法，该语法从Python 2.5中作为<code>__future__</code>模块加入，在Python 2.6中加入到正式环境。</p>
+<p>对个人来说，主要有两点收获：</p>
+<ul>
+<li>如何让自己的对象支持<code>with</code>语法</li>
+<li>发现了contextlib库</li>
+</ul>
+<p>来源: <a href="https://docs.python.org/2.7/whatsnew/2.6.html#pep-343-the-with-statement" target="_blank" rel="external">What’s new in Python 2.6</a></p>
+<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p><code>with</code>语法简化了之前使用<code>try...finally</code>代码块来确保清理代码被执行的写法。本节会跟大家讨论下<code>with</code>语法的常见用法。下一节会介绍它的实现细节以及如何在自己的对象中支持<code>with</code>语法。</p>
+<p><code>with</code>语法作为一个新的流程控制体，下面是它的基本结构：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">with</span> expression [<span class="keyword">as</span> variable]:</div><div class="line">    <span class="keyword">with</span>-block</div></pre></td></tr></table></figure>
+<p>对这个表达式求值后会得到一个支持上下文管理协议(即<code>__enter__()</code>和<code>__exit()__</code>)方法的对象。</p>
+<p>对象的<code>__enter__()</code>方法会在<em>with-block</em>被执行时调用，因此可以用来执行一些预处理代码。如果表达式中写了<code>as vaiable</code>部分的话，这个方法同时会返回一个值，这个值会和变量名<em>variable</em>进行绑定。(注意: <em>variable</em>并不会绑定到<em>expression</em>表达式的结果上)。</p>
+<p><em>with-block</em>代码在执行结束后会调用对象的<code>__exit__()</code>方法，即使抛出了异常也不会例外。这样清理代码总是会被执行到。</p>
+<p>在 Python 2.5中你需要使用如下代码启用<code>with</code>语法(之后的版本默认开启):</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> with_statement</div></pre></td></tr></table></figure>
+<p>Python标准库中的一些对象现在支持使用<code>with</code>语法来进行上下文管理。用文件对象举例说明:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">with</span> open(<span class="string">'/etc/passwd'</span>, <span class="string">'r'</span>) <span class="keyword">as</span> f:</div><div class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> f:</div><div class="line">        <span class="keyword">print</span> line</div><div class="line">        ... more processing code ...</div></pre></td></tr></table></figure>
+<p>当这段代码执行完后，即使<code>for</code>循环过程中遇到了异常，文件对象<em>f</em>也会被自动关闭。</p>
+<blockquote>
+<p>注意: 在这个例子中，<em>f</em>和<code>open()</code>方法创建的对象一样，因为<code>file.__enter()__</code>返回的是自身<em>self</em></p>
+</blockquote>
+<p><code>threading</code>模块的锁和条件变量同样支持<code>with</code>语法:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lock = threading.Lock()</div><div class="line"><span class="keyword">with</span> lock:</div><div class="line">    <span class="comment"># Critical section of code</span></div><div class="line">    ...</div></pre></td></tr></table></figure>
+<p>区块代码会在执行前自动获取锁，执行完毕后自动释放锁。</p>
+<p>模块<code>decimal</code>中新的<code>localcontext()</code>函数简化了当前<code>decimal</code>上下文的保存和复原，这样在<code>with</code>的代码块中可以指定计算所需的精度以及舍入特性而不影响到外面的代码。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> decimal <span class="keyword">import</span> Decimal, Context, localcontext</div><div class="line"></div><div class="line"><span class="comment"># Displays with default precision of 28 digits</span></div><div class="line">v = Decimal(<span class="string">'578'</span>)</div><div class="line"><span class="keyword">print</span> v.sqrt()</div><div class="line"></div><div class="line"><span class="keyword">with</span> localcontext(Context(prec=<span class="number">16</span>)):</div><div class="line">    <span class="comment"># All code in this block uses a precision of 16 digits.</span></div><div class="line">    <span class="comment"># The original context is restored on exiting the block.</span></div><div class="line">    <span class="keyword">print</span> v.sqrt()</div></pre></td></tr></table></figure>
+<h3 id="编写上下文管理"><a href="#编写上下文管理" class="headerlink" title="编写上下文管理"></a>编写上下文管理</h3><p>当前的<code>with</code>语法相当完善了，大多数的开发人员仅仅是在已有的对象上使用<code>with</code>语法，而不需要知道它们的实现细节，因此本节可以跳过。但是如果自己开发支持<code>with</code>语法的对象的人需要继续阅读了解其底层细节。</p>
+<p>对上下文管理协议的一个高等级解释是：</p>
+<ul>
+<li>表达式求值后应该返回一个叫做”context manager”的对象。该对象必须定义了<code>__enter__()</code>和<code>__exit__()</code>方法。</li>
+<li>将上下文管理器的<code>__enter__()</code>方法返回的值指派给<em>VAR</em>，如果没有<code>as VAR</code>语句时丢弃返回值。</li>
+<li>执行<em>BLOCK</em>中的代码</li>
+<li>如果<em>BLOCK</em>抛出异常，调用<code>__exit__(type, value, traceback)__</code>并传入异常详情(和<code>sys.exc_info()</code>返回的值一样)。<code>__exit__</code>方法的返回值决定是否再次抛出异常： 返回false值时会重新抛出异常，而<code>True</code>的时候会抹掉异常。一般来说尽量不要抹掉异常，因为这会导致在这个对象上使用<code>with</code>语法的人无法意识到执行出错了。</li>
+<li>如果<em>BLOCK</em>没有抛出异常时<code>__exit__()</code>方法仍然会被调用，但是参数<em>type</em>,<em>value</em>,<em>traceback</em>都为None。</li>
+</ul>
+<p>给大家举一个支持事物的数据库方法的例子(省略详细代码，只写关键部分)。</p>
+<p>(介绍下数据库的事物：将对数据库一系列的改变打包到一个事物中。事物可以提交：意味着所有的改变都写入到数据库中，也可以回滚：意味着丢弃所有的改变，数据库将不会做任何更改。具体细节可以看数据库相关的文章)</p>
+<p>假设存在一个代表数据库连接对象。我们的目标是使得用户可以写出如下的代码:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">db_connection = DatabaseConnection()</div><div class="line"><span class="keyword">with</span> db_connection <span class="keyword">as</span> cursor:</div><div class="line">    cursor.execute(<span class="string">'insert into ...'</span>)</div><div class="line">    cursor.execute(<span class="string">'delete from ...'</span>)</div><div class="line">    <span class="comment"># ... more operations ...</span></div></pre></td></tr></table></figure>
+<p>当区块中的代码执行正确时提交事物，遇到异常时回滚。以下是对<code>DatabaseConnection</code>中基本接口的假设：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">DatabaseConnection</span>:</span></div><div class="line">    <span class="comment"># Database interface</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">cursor</span> <span class="params">(self)</span>:</span></div><div class="line">        <span class="string">"Returns a cursor object and starts a new transaction"</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">commit</span> <span class="params">(self)</span>:</span></div><div class="line">        <span class="string">"Commits current transaction"</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">rollback</span> <span class="params">(self)</span>:</span></div><div class="line">        <span class="string">"Rolls back current transaction"</span></div></pre></td></tr></table></figure>
+<p><code>__enter__()</code>简单到只需要开始一个新的事物。在本应用中，cursor对象很有用，因此将它返回出去。用户可以在<code>with</code>语法中使用<code>as cursor</code>表达式将cursor绑定到一个变量上。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">DatabaseConnection</span>:</span></div><div class="line">    ...</div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__enter__</span> <span class="params">(self)</span>:</span></div><div class="line">        <span class="comment"># Code to start a new transaction</span></div><div class="line">        cursor = self.cursor()</div><div class="line">        <span class="keyword">return</span> cursor</div></pre></td></tr></table></figure>
+<p>相比之下<code>__exit__()</code>方法就有点复杂了，因为它要做比较多的工作。这个方法需要检查是否发生异常，如果没有异常就提交事物，否则回滚事物。</p>
+<p>下面的代码在执行完成后会返回函数默认返回值<code>None</code>，由于<code>None</code>的真假值为假，所以异常会自动重新抛出来。如果你期望代码可读性更高一点，可以在标记的地方增加自己的<code>return</code>语句。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">DatabaseConnection</span>:</span></div><div class="line">    ...</div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__exit__</span> <span class="params">(self, type, value, tb)</span>:</span></div><div class="line">        <span class="keyword">if</span> tb <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            <span class="comment"># No exception, so commit</span></div><div class="line">            self.commit()</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            <span class="comment"># Exception occurred, so rollback.</span></div><div class="line">            self.rollback()</div><div class="line">            <span class="comment"># return False</span></div></pre></td></tr></table></figure>
+<h3 id="contextlib-模块"><a href="#contextlib-模块" class="headerlink" title="contextlib 模块"></a>contextlib 模块</h3><p>新的<code>contextlib</code>模块提供一些方法和装饰器来简化编写对象的<code>with</code>语法支持。</p>
+<p>装饰器叫做<code>contextmanager()</code>，它允许你写一个生成器函数而不是定义一个新的类。生成器应该而且只能<code>yield</code>一个值。<code>yield</code>前面的代码将会当做<code>__enter__()</code>方法执行，<code>yield</code>出去的值会被当成该方法的返回值，然后该值会绑定到<code>with</code>语法中的<code>as</code>后面的变量中(如果存在的话)。<code>yield</code>之后的代码会被当做<code>__exit__()</code>方法执行。<code>with</code>代码块中的任何异常都会被<code>yield</code>语句抛出。</p>
+<p>先前的数据库例子可以使用装饰器实现:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> contextlib <span class="keyword">import</span> contextmanager</div><div class="line"></div><div class="line"><span class="meta">@contextmanager</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">db_transaction</span> <span class="params">(connection)</span>:</span></div><div class="line">    cursor = connection.cursor()</div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        <span class="keyword">yield</span> cursor</div><div class="line">    <span class="keyword">except</span>:</div><div class="line">        connection.rollback()</div><div class="line">        <span class="keyword">raise</span></div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        connection.commit()</div><div class="line"></div><div class="line">db = DatabaseConnection()</div><div class="line"><span class="keyword">with</span> db_transaction(db) <span class="keyword">as</span> cursor:</div><div class="line">    ...</div></pre></td></tr></table></figure>
+<p><code>contextlib</code>模块还有一个<code>nested(mgr1, mgr2, ...)</code>方法，该方法可以将多个上下文管理器绑定到一起，这样你就不需要写嵌套的<code>with</code>语句了。在这个例子中，可以将开启数据库事物以及获取线程锁整合到单个<code>with</code>语句中:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">lock = threading.Lock()</div><div class="line"><span class="keyword">with</span> nested (db_transaction(db), lock) <span class="keyword">as</span> (cursor, locked):</div><div class="line">    ...</div></pre></td></tr></table></figure>
+<p>最后，<code>closing(object)</code>方法返回一个能够绑定到<code>as</code>后面的变量的对象，当<code>with</code>代码块结束时会调用<code>object.close</code>方法。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> urllib, sys</div><div class="line"><span class="keyword">from</span> contextlib <span class="keyword">import</span> closing</div><div class="line"></div><div class="line"><span class="keyword">with</span> closing(urllib.urlopen(<span class="string">'http://www.yahoo.com'</span>)) <span class="keyword">as</span> f:</div><div class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> f:</div><div class="line">        sys.stdout.write(line)</div></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://blog.lecher.tech/2018/03/28/whats-new-in-python2.2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2192,173 +2365,6 @@ class PubCardsAttr(object):
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://blog.lecher.tech/2017/02/17/solve-blocked-mysql-in-tornado/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="LiCheng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lecher的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/02/17/solve-blocked-mysql-in-tornado/" itemprop="url">在Tornado中将MySQL同步操作封装到线程池中处理</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-02-17T19:19:09+08:00">
-                2017-02-17
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="1-介绍"><a href="#1-介绍" class="headerlink" title="1.介绍"></a>1.介绍</h3><p>使用多Tornado的都知道,在Tornado中所有的操作都建议采用异步的形式,<br>但是实际情况是很多的操作并没有异步版本, 比如现在要解决的就是MySQL的同步阻塞问题.<br>通过调查别家大牛的处理方案, 个人觉得最简单,对代码修改程度最小的当属:<br>线程池+MySQL连接池的方案.</p>
-<h3 id="2-方案概述"><a href="#2-方案概述" class="headerlink" title="2.方案概述"></a>2.方案概述</h3><p>使用这种方案,核心有下面几点:</p>
-<ul>
-<li>借助tornado.concurrent.run_on_executor装饰器将需要丢入到线程池的任务装饰起来</li>
-<li>实现一个线程池,必须提供提交任务的submit方法</li>
-<li>实现一个MySQL连接池,保证各个MySQL请求之间数据互不干涉</li>
-<li>在handler中使用yield和tornado.web.asynchronous保证异步执行</li>
-</ul>
-<h3 id="3-run-on-executor代码解析"><a href="#3-run-on-executor代码解析" class="headerlink" title="3.run_on_executor代码解析"></a>3.run_on_executor代码解析</h3><p>直接看代码:</p>
-<p><pre class="prettyprint lang-python"><br>def run_on_executor(<em>args, **kwargs):<br>    def run_on_executor_decorator(fn):<br>        executor = kwargs.get(“executor”, “executor”)<br>        io_loop = kwargs.get(“io_loop”, “io_loop”)<br>        @functools.wraps(fn)<br>        def wrapper(self, </em>args, <strong>kwargs):<br>            callback = kwargs.pop(“callback”, None)<br>            future = getattr(self, executor).submit(fn, self, *args, </strong>kwargs)<br>            if callback:<br>                getattr(self, io_loop).add_future(<br>                    future, lambda future: callback(future.result()))<br>            return future<br>        return wrapper</pre></p>
-<pre><code># 省去无关代码
-return run_on_executor_decorator
-</code></pre><p><br>我觉得重要的几个点:</p>
-<ul>
-<li>装饰器会从装饰的方法的实例中寻找线程池实例(也就是获取executor)</li>
-<li>装饰器会将装饰的方法提交到线程池中运行, 而submit方法会返回一个Future对象</li>
-<li>如果装饰的方法提供了callback参数, 那么会在任务执行结束后执行callback函数,<br>具体如何执行,下面会介绍</li>
-<li>在调用被装饰的方法时, 会返回一个Future对象,<br>这满足了tornado的tornado.web.asynchronous装饰器要求</li>
-<li>当需要在任务处理完成时处理一些额外逻辑, 必须在参数中传入callback,<br>但是确保自己已经在类中设置了io_loop,如果需要在程序结束时处理返回的值,<br>则必须要在传入的参数中增加callback参数.</li>
-</ul>
-<p>当callback参数存在时执行的逻辑为:将future加入到io_loop中去,io_loop中add_future的用法是:<br>在future的完成回调中增加一个方法,该方法会将callback增加到io_loop的主循环待处理callback队列中.</p>
-<h3 id="4-ThreadPoolExecutor的submit方法"><a href="#4-ThreadPoolExecutor的submit方法" class="headerlink" title="4.ThreadPoolExecutor的submit方法"></a>4.ThreadPoolExecutor的submit方法</h3><p>使用线程池时,不用重复造轮子,可以直接使用ThreadPoolExecutor来构造线程池,<br>需要注意的是Python2.7下需要使用 pip install futures 来安装.<br>接下来看submit的代码:</p>
-<p><pre class="prettyprint lang-python"><br>def submit(self, fn, <em>args, *</em>kwargs):<br>        with self._shutdown_lock:<br>            if self._shutdown:<br>                raise RuntimeError(‘cannot schedule new futures after shutdown’)<br>            f = _base.Future()<br>            w = _WorkItem(f, fn, args, kwargs)<br>            self._work_queue.put(w)<br>            self._adjust_thread_count()<br>            return f<br></pre><br>功能很简单,就是将任务包装成一个_WorkItem, 然后放入到工作队列中去, 值得一提的是,<br>这个工作队列来自Queue.Queue,本身就是线程安全的,<br>这里主要关注的是_base.Future()构造出来的对象,需要关注它里面的一个方法<br>(当传入了callback时会调用到它):</p>
-<p><pre class="prettyprint lang-python"><br>def add_done_callback(self, fn):<br>        with self._condition:<br>            if self._state not in [CANCELLED, CANCELLED_AND_NOTIFIED, FINISHED]:<br>                self._done_callbacks.append(fn)<br>                return<br>        fn(self)<br></pre><br>也就是如果这个Future已经完成/取消了,则会执行传入的回调函数,否则加入到完成回调函数列表中.</p>
-<h3 id="5-MySQL连接池"><a href="#5-MySQL连接池" class="headerlink" title="5.MySQL连接池"></a>5.MySQL连接池</h3><p>由于项目使用的是torndb, 因此写一个轻量级的MySQL连接池逻辑很简单, 代码如下:</p>
-<p><pre class="prettyprint lang-python"><br>class MysqlConnPool(object):<br>    def <strong>init</strong>(self, host, database, user, pwd, max_conns=30):<br>        self.idle_conn = Queue.Queue()<br>        self.pool_size = 0<br>        self.max_conns = max_conns<br>        self.conn_params = (host, database, user, pwd)<br>        self.poll_size_mutex = threading.Lock()</pre></p>
-<pre><code>def _get_conn_from_pool(self):
-    if self.idle_conn.empty() and self.pool_size &lt; self.max_conns:
-        conn = torndb.Connection(*self.conn_params, time_zone=&quot;+8:00&quot;)
-        self.poll_size_mutex.acquire()
-        self.pool_size += 1
-        self.poll_size_mutex.release()
-        return conn
-    return self.idle_conn.get()
-
-
-def query(self, *args, **kwargs):
-    conn = self._get_conn_from_pool()
-    res = conn.query(*args, **kwargs)
-    self.idle_conn.put(conn)
-    return res
-# 封装其它方法
-</code></pre><p><br>使用时只要在系统初始化的时候把连接池初始化好, 后面数据库的一些处理接口都封装好了,<br>直接调用就可以了.</p>
-<ul>
-<li>关于异常处理:交由外层逻辑判断,内部不做判断</li>
-<li>关于析构:可以在线程池退出时断开所有的连接</li>
-</ul>
-<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><p>使用run_on_executor装饰后,就可以将被修饰的方法当做普通的异步方法使用,<br>使用时可以使用yield tornado.gen.Task() 结合 tornado.gen.coroutine的方法实现同步代码异步效果.</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2409,7 +2415,7 @@ def query(self, *args, **kwargs):
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-count">13</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -2422,7 +2428,7 @@ def query(self, *args, **kwargs):
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-count">13</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

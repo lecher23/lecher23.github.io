@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="translation, Python," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="本文主要介绍Python 中的with语法，该语法从Python 2.5中作为__future__模块加入，在Python 2.6中加入到正式环境。 对个人来说，主要有两点收获：  如何让自己的对象支持with语法 发现了contextlib库  来源: What’s new in Python 2.6 正文with语法简化了之前使用try...finally代码块来确保清理代码被执行的写法。本节">
+<meta name="keywords" content="translation, Python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="翻译-Python中的with语句">
+<meta property="og:url" content="http://blog.lecher.tech/2018/04/03/with-statement-in-python/index.html">
+<meta property="og:site_name" content="Lecher的博客">
+<meta property="og:description" content="本文主要介绍Python 中的with语法，该语法从Python 2.5中作为__future__模块加入，在Python 2.6中加入到正式环境。 对个人来说，主要有两点收获：  如何让自己的对象支持with语法 发现了contextlib库  来源: What’s new in Python 2.6 正文with语法简化了之前使用try...finally代码块来确保清理代码被执行的写法。本节">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-04-03T09:48:47.740Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="翻译-Python中的with语句">
+<meta name="twitter:description" content="本文主要介绍Python 中的with语法，该语法从Python 2.5中作为__future__模块加入，在Python 2.6中加入到正式环境。 对个人来说，主要有两点收获：  如何让自己的对象支持with语法 发现了contextlib库  来源: What’s new in Python 2.6 正文with语法简化了之前使用try...finally代码块来确保清理代码被执行的写法。本节">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"always","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.lecher.tech/2018/04/03/with-statement-in-python/"/>
+
+
+
+
+
+  <title>翻译-Python中的with语句 | Lecher的博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Lecher的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">这个博主很懒!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.lecher.tech/2018/04/03/with-statement-in-python/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="LiCheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lecher的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">翻译-Python中的with语句</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-03T17:42:20+08:00">
+                2018-04-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本文主要介绍Python 中的with语法，该语法从Python 2.5中作为<code>__future__</code>模块加入，在Python 2.6中加入到正式环境。</p>
+<p>对个人来说，主要有两点收获：</p>
+<ul>
+<li>如何让自己的对象支持<code>with</code>语法</li>
+<li>发现了contextlib库</li>
+</ul>
+<p>来源: <a href="https://docs.python.org/2.7/whatsnew/2.6.html#pep-343-the-with-statement" target="_blank" rel="external">What’s new in Python 2.6</a></p>
+<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p><code>with</code>语法简化了之前使用<code>try...finally</code>代码块来确保清理代码被执行的写法。本节会跟大家讨论下<code>with</code>语法的常见用法。下一节会介绍它的实现细节以及如何在自己的对象中支持<code>with</code>语法。</p>
+<p><code>with</code>语法作为一个新的流程控制体，下面是它的基本结构：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">with</span> expression [<span class="keyword">as</span> variable]:</div><div class="line">    <span class="keyword">with</span>-block</div></pre></td></tr></table></figure>
+<p>对这个表达式求值后会得到一个支持上下文管理协议(即<code>__enter__()</code>和<code>__exit()__</code>)方法的对象。</p>
+<p>对象的<code>__enter__()</code>方法会在<em>with-block</em>被执行时调用，因此可以用来执行一些预处理代码。如果表达式中写了<code>as vaiable</code>部分的话，这个方法同时会返回一个值，这个值会和变量名<em>variable</em>进行绑定。(注意: <em>variable</em>并不会绑定到<em>expression</em>表达式的结果上)。</p>
+<p><em>with-block</em>代码在执行结束后会调用对象的<code>__exit__()</code>方法，即使抛出了异常也不会例外。这样清理代码总是会被执行到。</p>
+<p>在 Python 2.5中你需要使用如下代码启用<code>with</code>语法(之后的版本默认开启):</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> with_statement</div></pre></td></tr></table></figure>
+<p>Python标准库中的一些对象现在支持使用<code>with</code>语法来进行上下文管理。用文件对象举例说明:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">with</span> open(<span class="string">'/etc/passwd'</span>, <span class="string">'r'</span>) <span class="keyword">as</span> f:</div><div class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> f:</div><div class="line">        <span class="keyword">print</span> line</div><div class="line">        ... more processing code ...</div></pre></td></tr></table></figure>
+<p>当这段代码执行完后，即使<code>for</code>循环过程中遇到了异常，文件对象<em>f</em>也会被自动关闭。</p>
+<blockquote>
+<p>注意: 在这个例子中，<em>f</em>和<code>open()</code>方法创建的对象一样，因为<code>file.__enter()__</code>返回的是自身<em>self</em></p>
+</blockquote>
+<p><code>threading</code>模块的锁和条件变量同样支持<code>with</code>语法:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lock = threading.Lock()</div><div class="line"><span class="keyword">with</span> lock:</div><div class="line">    <span class="comment"># Critical section of code</span></div><div class="line">    ...</div></pre></td></tr></table></figure>
+<p>区块代码会在执行前自动获取锁，执行完毕后自动释放锁。</p>
+<p>模块<code>decimal</code>中新的<code>localcontext()</code>函数简化了当前<code>decimal</code>上下文的保存和复原，这样在<code>with</code>的代码块中可以指定计算所需的精度以及舍入特性而不影响到外面的代码。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> decimal <span class="keyword">import</span> Decimal, Context, localcontext</div><div class="line"></div><div class="line"><span class="comment"># Displays with default precision of 28 digits</span></div><div class="line">v = Decimal(<span class="string">'578'</span>)</div><div class="line"><span class="keyword">print</span> v.sqrt()</div><div class="line"></div><div class="line"><span class="keyword">with</span> localcontext(Context(prec=<span class="number">16</span>)):</div><div class="line">    <span class="comment"># All code in this block uses a precision of 16 digits.</span></div><div class="line">    <span class="comment"># The original context is restored on exiting the block.</span></div><div class="line">    <span class="keyword">print</span> v.sqrt()</div></pre></td></tr></table></figure>
+<h3 id="编写上下文管理"><a href="#编写上下文管理" class="headerlink" title="编写上下文管理"></a>编写上下文管理</h3><p>当前的<code>with</code>语法相当完善了，大多数的开发人员仅仅是在已有的对象上使用<code>with</code>语法，而不需要知道它们的实现细节，因此本节可以跳过。但是如果自己开发支持<code>with</code>语法的对象的人需要继续阅读了解其底层细节。</p>
+<p>对上下文管理协议的一个高等级解释是：</p>
+<ul>
+<li>表达式求值后应该返回一个叫做”context manager”的对象。该对象必须定义了<code>__enter__()</code>和<code>__exit__()</code>方法。</li>
+<li>将上下文管理器的<code>__enter__()</code>方法返回的值指派给<em>VAR</em>，如果没有<code>as VAR</code>语句时丢弃返回值。</li>
+<li>执行<em>BLOCK</em>中的代码</li>
+<li>如果<em>BLOCK</em>抛出异常，调用<code>__exit__(type, value, traceback)__</code>并传入异常详情(和<code>sys.exc_info()</code>返回的值一样)。<code>__exit__</code>方法的返回值决定是否再次抛出异常： 返回false值时会重新抛出异常，而<code>True</code>的时候会抹掉异常。一般来说尽量不要抹掉异常，因为这会导致在这个对象上使用<code>with</code>语法的人无法意识到执行出错了。</li>
+<li>如果<em>BLOCK</em>没有抛出异常时<code>__exit__()</code>方法仍然会被调用，但是参数<em>type</em>,<em>value</em>,<em>traceback</em>都为None。</li>
+</ul>
+<p>给大家举一个支持事物的数据库方法的例子(省略详细代码，只写关键部分)。</p>
+<p>(介绍下数据库的事物：将对数据库一系列的改变打包到一个事物中。事物可以提交：意味着所有的改变都写入到数据库中，也可以回滚：意味着丢弃所有的改变，数据库将不会做任何更改。具体细节可以看数据库相关的文章)</p>
+<p>假设存在一个代表数据库连接对象。我们的目标是使得用户可以写出如下的代码:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">db_connection = DatabaseConnection()</div><div class="line"><span class="keyword">with</span> db_connection <span class="keyword">as</span> cursor:</div><div class="line">    cursor.execute(<span class="string">'insert into ...'</span>)</div><div class="line">    cursor.execute(<span class="string">'delete from ...'</span>)</div><div class="line">    <span class="comment"># ... more operations ...</span></div></pre></td></tr></table></figure>
+<p>当区块中的代码执行正确时提交事物，遇到异常时回滚。以下是对<code>DatabaseConnection</code>中基本接口的假设：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">DatabaseConnection</span>:</span></div><div class="line">    <span class="comment"># Database interface</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">cursor</span> <span class="params">(self)</span>:</span></div><div class="line">        <span class="string">"Returns a cursor object and starts a new transaction"</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">commit</span> <span class="params">(self)</span>:</span></div><div class="line">        <span class="string">"Commits current transaction"</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">rollback</span> <span class="params">(self)</span>:</span></div><div class="line">        <span class="string">"Rolls back current transaction"</span></div></pre></td></tr></table></figure>
+<p><code>__enter__()</code>简单到只需要开始一个新的事物。在本应用中，cursor对象很有用，因此将它返回出去。用户可以在<code>with</code>语法中使用<code>as cursor</code>表达式将cursor绑定到一个变量上。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">DatabaseConnection</span>:</span></div><div class="line">    ...</div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__enter__</span> <span class="params">(self)</span>:</span></div><div class="line">        <span class="comment"># Code to start a new transaction</span></div><div class="line">        cursor = self.cursor()</div><div class="line">        <span class="keyword">return</span> cursor</div></pre></td></tr></table></figure>
+<p>相比之下<code>__exit__()</code>方法就有点复杂了，因为它要做比较多的工作。这个方法需要检查是否发生异常，如果没有异常就提交事物，否则回滚事物。</p>
+<p>下面的代码在执行完成后会返回函数默认返回值<code>None</code>，由于<code>None</code>的真假值为假，所以异常会自动重新抛出来。如果你期望代码可读性更高一点，可以在标记的地方增加自己的<code>return</code>语句。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">DatabaseConnection</span>:</span></div><div class="line">    ...</div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__exit__</span> <span class="params">(self, type, value, tb)</span>:</span></div><div class="line">        <span class="keyword">if</span> tb <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            <span class="comment"># No exception, so commit</span></div><div class="line">            self.commit()</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            <span class="comment"># Exception occurred, so rollback.</span></div><div class="line">            self.rollback()</div><div class="line">            <span class="comment"># return False</span></div></pre></td></tr></table></figure>
+<h3 id="contextlib-模块"><a href="#contextlib-模块" class="headerlink" title="contextlib 模块"></a>contextlib 模块</h3><p>新的<code>contextlib</code>模块提供一些方法和装饰器来简化编写对象的<code>with</code>语法支持。</p>
+<p>装饰器叫做<code>contextmanager()</code>，它允许你写一个生成器函数而不是定义一个新的类。生成器应该而且只能<code>yield</code>一个值。<code>yield</code>前面的代码将会当做<code>__enter__()</code>方法执行，<code>yield</code>出去的值会被当成该方法的返回值，然后该值会绑定到<code>with</code>语法中的<code>as</code>后面的变量中(如果存在的话)。<code>yield</code>之后的代码会被当做<code>__exit__()</code>方法执行。<code>with</code>代码块中的任何异常都会被<code>yield</code>语句抛出。</p>
+<p>先前的数据库例子可以使用装饰器实现:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> contextlib <span class="keyword">import</span> contextmanager</div><div class="line"></div><div class="line"><span class="meta">@contextmanager</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">db_transaction</span> <span class="params">(connection)</span>:</span></div><div class="line">    cursor = connection.cursor()</div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        <span class="keyword">yield</span> cursor</div><div class="line">    <span class="keyword">except</span>:</div><div class="line">        connection.rollback()</div><div class="line">        <span class="keyword">raise</span></div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        connection.commit()</div><div class="line"></div><div class="line">db = DatabaseConnection()</div><div class="line"><span class="keyword">with</span> db_transaction(db) <span class="keyword">as</span> cursor:</div><div class="line">    ...</div></pre></td></tr></table></figure>
+<p><code>contextlib</code>模块还有一个<code>nested(mgr1, mgr2, ...)</code>方法，该方法可以将多个上下文管理器绑定到一起，这样你就不需要写嵌套的<code>with</code>语句了。在这个例子中，可以将开启数据库事物以及获取线程锁整合到单个<code>with</code>语句中:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">lock = threading.Lock()</div><div class="line"><span class="keyword">with</span> nested (db_transaction(db), lock) <span class="keyword">as</span> (cursor, locked):</div><div class="line">    ...</div></pre></td></tr></table></figure>
+<p>最后，<code>closing(object)</code>方法返回一个能够绑定到<code>as</code>后面的变量的对象，当<code>with</code>代码块结束时会调用<code>object.close</code>方法。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> urllib, sys</div><div class="line"><span class="keyword">from</span> contextlib <span class="keyword">import</span> closing</div><div class="line"></div><div class="line"><span class="keyword">with</span> closing(urllib.urlopen(<span class="string">'http://www.yahoo.com'</span>)) <span class="keyword">as</span> f:</div><div class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> f:</div><div class="line">        sys.stdout.write(line)</div></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/translation-Python/" rel="tag"># translation, Python</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/28/whats-new-in-python2.2/" rel="next" title="翻译-Python2.2中的新特性">
+                <i class="fa fa-chevron-left"></i> 翻译-Python2.2中的新特性
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="LiCheng" />
+          <p class="site-author-name" itemprop="name">LiCheng</p>
+           
+              <p class="site-description motion-element" itemprop="description">My Github is https://github.com/lecher23.</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#正文"><span class="nav-number">1.</span> <span class="nav-text">正文</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#编写上下文管理"><span class="nav-number">1.1.</span> <span class="nav-text">编写上下文管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#contextlib-模块"><span class="nav-number">1.2.</span> <span class="nav-text">contextlib 模块</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">LiCheng</span>
+
+  
+</div>
+
+
+  <div class="powered-by">
+    由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+    <div style="display:none">
+  <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1262830626'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s13.cnzz.com/z_stat.php%3Fid%3D1262830626%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script>
+</div>
+  </div>
+
+  <span class="post-meta-divider">|</span>
+
+  <div class="theme-info">
+    主题 &mdash;
+    <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+      NexT.Pisces
+    </a>
+  </div>
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
