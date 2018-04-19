@@ -511,126 +511,84 @@
 <li>迭代器</li>
 </ol>
 <p><a href="https://docs.python.org/2/whatsnew/2.2.html#peps-252-and-253-type-and-class-changes" target="_blank" rel="external">原文链接</a></p>
-<h2 id="PEPs-252-and-253-Type-and-Class-Changes"><a href="#PEPs-252-and-253-Type-and-Class-Changes" class="headerlink" title="PEPs 252 and 253: Type and Class Changes"></a>PEPs 252 and 253: Type and Class Changes</h2><ul>
-<li>Python中对象和类的模型是Python 2.2 中最大和影响最深远的改变。由于这些改变是向后兼容的，因此你的代码可以不用做任何改动而正常运行，并且这些改变还提供了一些神奇的新能力。在开始介绍本文最长最复杂的一节之前，我先提供这些改变的概览和一些讨论。</li>
-<li>很久以前我在网上列举了Python设计中的一些不合理地方。其中一个最显著的缺陷是：你无法为在C中实现的Python类型创建子类。举例来说，你无法创建一个内建类型的子类，也就是说你无法通过子类的方式为它增加一个有用的方法。虽然UserList 模块提供一个支持列表(lists)的全部方法并且可以被继承的类，但是存在一个问题是：有许多的C代码依赖一个标准的Python 列表(list)，并不能接受一个UserList实例。</li>
-<li>Python 2.2 修复了这个问题，而且顺便增加了一些新的特性，简要描述如下:<ul>
+<h2 id="PEPs-252-and-253-Type-and-Class-Changes"><a href="#PEPs-252-and-253-Type-and-Class-Changes" class="headerlink" title="PEPs 252 and 253: Type and Class Changes"></a>PEPs 252 and 253: Type and Class Changes</h2><p>Python中对象和类的模型是Python 2.2 中最大和影响最深远的改变。由于这些改变是向后兼容的，因此你的代码可以不用做任何改动而正常运行，并且这些改变还提供了一些神奇的新能力。在开始介绍本文最长最复杂的一节之前，我先提供这些改变的概览和一些讨论。</p>
+<p>很久以前我在网上列举了Python设计中的一些不合理地方。其中一个最显著的缺陷是：你无法为在C中实现的Python类型创建子类。举例来说，你无法创建一个内建类型的子类，也就是说你无法通过子类的方式为它增加一个有用的方法。虽然UserList 模块提供一个支持列表(lists)的全部方法并且可以被继承的类，但是存在一个问题是：有许多的C代码依赖一个标准的Python 列表(list)，并不能接受一个UserList实例。</p>
+<p>Python 2.2 修复了这个问题，而且顺便增加了一些新的特性，简要描述如下:</p>
+<ul>
 <li>你可以继承任何的内建类型，比如列表(lists)和整型(integers)，子类可以在任何需要原始类型的地方正常工作。</li>
 <li>你可以定义类的静态方法以及类方法，以及在之前的Python版本中可用的实例方法(instance method)。</li>
 <li>你可以通过一个新的<em>属性</em>(properties)机制来使用方法调用的方式访问和设置一个实例的属性。许多使用__getattr__() 方法的地方可以使用<em>属性</em>代替，这使得生成的代码更加简单和快速。额外的一个好处是属性现在也可以有文档说明(docstrings)了。</li>
 <li>通过使用<em>__slot__</em>，你可以对一个实例的合法属性进行限制，这样可以避免拼写错误，也许在后面的Python版本中还可以进行更多的优化。</li>
 </ul>
-</li>
-<li>一些用户表示了自己对这些变化的担忧。虽然这些新特性很整洁而且让他们看到了之前Python版本中没有的一些技巧(tricks)，但同时也使得这门语言更加复杂了。部分用户曾经说过他们是因为Python足够简洁而被推荐使用的，新特性让他们感到丢失了Python的简洁性。</li>
-<li>个人觉得这些担心都是没必要的。许多的新特性是十分深奥的，你甚至可以在忽略它们的情况下编写你的Python代码。写一个简单的类并不比之前版本困难，因此在实际用到这些特性之前，你并不需要学习或者了解它们。一些之前只能在C语言级别实现的复杂任务现在也可以使用纯Python实现了，对我来说，这是一种更好的改进。</li>
-<li>我不会尝试覆盖使得新特性工作的所有细节和微小变化。相反，这节仅仅进行大体介绍。通过<a href="https://docs.python.org/2/whatsnew/2.2.html#sect-rellinks" target="_blank" rel="external">“相关链接”</a> 了解关于Python 2.2 新对象(object)模型的更多信息。</li>
-</ul>
-<h3 id="Old-and-New-Classes"><a href="#Old-and-New-Classes" class="headerlink" title="Old and New Classes"></a>Old and New Classes</h3><ul>
-<li>首先，你应该了解的是Python 2.2中存在着两种类型的类：经典(旧式)类和新式类。旧式类与之前版本的行为一模一样。所有本节中描述的新属性都只针对新式类。这种差异并不打算一直持续下去，也许在Python 3.0中旧式类最终会被抛弃。</li>
-<li>通过继承一个存在的新式类可以定义你自己的新式类。Python中大部分的内建类型，比如整型、列表、词典、甚至文件，都已经是新式类了。所有内建类型的基类是一个叫做object的新式类，如果没有合适的内建类继承，你可以直接继承object这个新式类:</li>
-</ul>
+<p>一些用户表示了自己对这些变化的担忧。虽然这些新特性很整洁而且让他们看到了之前Python版本中没有的一些技巧(tricks)，但同时也使得这门语言更加复杂了。部分用户曾经说过他们是因为Python足够简洁而被推荐使用的，新特性让他们感到丢失了Python的简洁性。</p>
+<p>个人觉得这些担心都是没必要的。许多的新特性是十分深奥的，你甚至可以在忽略它们的情况下编写你的Python代码。写一个简单的类并不比之前版本困难，因此在实际用到这些特性之前，你并不需要学习或者了解它们。一些之前只能在C语言级别实现的复杂任务现在也可以使用纯Python实现了，对我来说，这是一种更好的改进。</p>
+<p>我不会尝试覆盖使得新特性工作的所有细节和微小变化。相反，这节仅仅进行大体介绍。通过<a href="https://docs.python.org/2/whatsnew/2.2.html#sect-rellinks" target="_blank" rel="external">“相关链接”</a> 了解关于Python 2.2 新对象(object)模型的更多信息。</p>
+<h3 id="Old-and-New-Classes"><a href="#Old-and-New-Classes" class="headerlink" title="Old and New Classes"></a>Old and New Classes</h3><p>首先，你应该了解的是Python 2.2中存在着两种类型的类：经典(旧式)类和新式类。旧式类与之前版本的行为一模一样。所有本节中描述的新属性都只针对新式类。这种差异并不打算一直持续下去，也许在Python 3.0中旧式类最终会被抛弃。</p>
+<p>通过继承一个存在的新式类可以定义你自己的新式类。Python中大部分的内建类型，比如整型、列表、词典、甚至文件，都已经是新式类了。所有内建类型的基类是一个叫做object的新式类，如果没有合适的内建类继承，你可以直接继承object这个新式类:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">C</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span> <span class="params">(self)</span>:</span></div><div class="line">        ...</div><div class="line">    ...</div></pre></td></tr></table></figure>
-<ul>
-<li>这意味在Python 2.2中没有继承任何基类的类都是旧式类。（实际上你可以通过设置一个模块级别的变量__metaclass__–详见<a href="https://www.python.org/dev/peps/pep-0253" target="_blank" rel="external">PEP 253</a>–来改变这种情况，但是直接继承object更方便）</li>
-<li>内建类型的类型对象(type objects)同样可以被当做内建函数使用，命名使用了一种聪明的技巧。Python 中一般都有诸如int(), float(), str()这些内建函数。 在2.2中，它们不再是函数了，而是类型对象(type objects)会在被调用时像工厂函数一样工作。</li>
-</ul>
+<p>这意味在Python 2.2中没有继承任何基类的类都是旧式类。（实际上你可以通过设置一个模块级别的变量__metaclass__–详见<a href="https://www.python.org/dev/peps/pep-0253" target="_blank" rel="external">PEP 253</a>–来改变这种情况，但是直接继承object更方便）</p>
+<p>内建类型的类型对象(type objects)同样可以被当做内建函数使用，命名使用了一种聪明的技巧。Python 中一般都有诸如int(), float(), str()这些内建函数。 在2.2中，它们不再是函数了，而是类型对象(type objects)会在被调用时像工厂函数一样工作。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>int</div><div class="line">&lt;type <span class="string">'int'</span>&gt;</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>int(<span class="string">'123'</span>)</div><div class="line"><span class="number">123</span></div></pre></td></tr></table></figure>
-<ul>
-<li>为了完善类型集合，新的类型对象如dict()以及file()已经加入到新版本中。下面展示了一个有意思的例子，增加一个lock()方法到文件对象(file object)：</li>
-</ul>
+<p>为了完善类型集合，新的类型对象如dict()以及file()已经加入到新版本中。下面展示了一个有意思的例子，增加一个lock()方法到文件对象(file object)：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">LockableFile</span><span class="params">(file)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">lock</span> <span class="params">(self, operation, length=<span class="number">0</span>, start=<span class="number">0</span>, whence=<span class="number">0</span>)</span>:</span></div><div class="line">        <span class="keyword">import</span> fcntl</div><div class="line">        <span class="keyword">return</span> fcntl.lockf(self.fileno(), operation, length, start, whence)</div></pre></td></tr></table></figure>
+<p>已过时的posixfile 模块下有一个模拟所有文件对象方法的类也增加了lock()方法，但是这个类不能传递到期望接收内建文件的内部函数中去，但是对于我们的新的LockableFile来说是可以的。</p>
+<h3 id="Descriptors"><a href="#Descriptors" class="headerlink" title="Descriptors"></a>Descriptors</h3><p>在老版本的Python中没有统一的方法获取对象(object)支持的属性和方法。当然有一些非正式的约定，可以通过定义__members__和__methods__属性记录名字列表，但是很多时候扩展类的人并不会花时间去定义它们。你也可以回头检视对象的__dict__属性，但是当类被继承或者使用了一个随意的__getattr__()钩子时得到的结果仍可能不准确。</p>
+<p>新式类中一个重要的想法是：提供一个使用规范化的描述器(<strong>descriptors</strong>)来描述对象属性的API。描述器对应了一个属性的值，用来说明它是否是一个方法或者是一个变量。描述器API使得静态方法和类方法变成可能，以及具有特异的构造。</p>
+<p>属性描述器是存在于类对象内部的对象，同时它们拥有一些自己的属性:</p>
 <ul>
-<li>已过时的posixfile 模块下有一个模拟所有文件对象方法的类也增加了lock()方法，但是这个类不能传递到期望接收内建文件的内部函数中去，但是对于我们的新的LockableFile来说是可以的。</li>
-</ul>
-<h3 id="Descriptors"><a href="#Descriptors" class="headerlink" title="Descriptors"></a>Descriptors</h3><ul>
-<li>在老版本的Python中没有统一的方法获取对象(object)支持的属性和方法。当然有一些非正式的约定，可以通过定义__members__和__methods__属性记录名字列表，但是很多时候扩展类的人并不会花时间去定义它们。你也可以回头检视对象的__dict__属性，但是当类被继承或者使用了一个随意的__getattr__()钩子时得到的结果仍可能不准确。</li>
-<li>新式类中一个重要的想法是：提供一个使用规范化的描述器(<strong>descriptors</strong>)来描述对象属性的API。描述器对应了一个属性的值，用来说明它是否是一个方法或者是一个变量。描述器API使得静态方法和类方法变成可能，以及具有特异的构造。</li>
-<li>属性描述器是存在于类对象内部的对象，同时它们拥有一些自己的属性:<ul>
 <li>__name__：属性名字</li>
 <li>__doc__：属性的文档说明</li>
 <li>__get__(object)：用来检索对象值的方法</li>
 <li>__set__(object, value)：用来设置对象值的方法</li>
 <li>__delete__(object, value)：删除对象的值</li>
 </ul>
-</li>
-<li>例如，当你写下<code>obj.x</code>，Python的实际执行步骤是:</li>
-</ul>
+<p>例如，当你写下<code>obj.x</code>，Python的实际执行步骤是:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">descriptor = obj.__class__.x</div><div class="line">descriptor.__get__(obj)</div></pre></td></tr></table></figure>
-<ul>
-<li>相对于方法，<code>descriptor.__get__()</code>返回一个可调用的临时对象，同时将实例以及将要调用的方法打包起来。这也是为善么静态方法和类方法的工作机制；它们有专门的描述器仅仅打包方法/类方法。简单来说，静态方法不会传递实例，因此和常规的函数类似。类方法传递类对象，但是并传递对象本身(实例)。静态方法和类方法定义如下：</li>
-</ul>
+<p>相对于方法，<code>descriptor.__get__()</code>返回一个可调用的临时对象，同时将实例以及将要调用的方法打包起来。这也是为善么静态方法和类方法的工作机制；它们有专门的描述器仅仅打包方法/类方法。简单来说，静态方法不会传递实例，因此和常规的函数类似。类方法传递类对象，但是并传递对象本身(实例)。静态方法和类方法定义如下：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">C</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">f</span><span class="params">(arg1, arg2)</span>:</span></div><div class="line">        ...</div><div class="line">    f = staticmethod(f)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">g</span><span class="params">(cls, arg1, arg2)</span>:</span></div><div class="line">        ...</div><div class="line">    g = classmethod(g)</div></pre></td></tr></table></figure>
-<ul>
-<li><code>staticmethod(</code>函数接受函数<code>f()</code>并返回打包后的描述器，这样它就可以保存在类对象中。你也许期望存在着特殊的创建诸如方法(<code>def static f, def static f()</code>,或者其他类似的)语法，但是目前并没有定义这些语法(注: Python 2.7后使用装饰器了)，这个留给以后的Python 版本解决。</li>
-<li>一些像slots和properties的新特性同样通过新式类的描述器实现，而且编写一个完成一些新颖事情的描述器类并不是很困难。比如，可以写一个描述器类使得编写一个方法的埃菲尔式(Eiffel-style)的先决条件和后置条件成为可能。使用这个特征的类定义如下:</li>
-</ul>
+<p><code>staticmethod(</code>函数接受函数<code>f()</code>并返回打包后的描述器，这样它就可以保存在类对象中。你也许期望存在着特殊的创建诸如方法(<code>def static f, def static f()</code>,或者其他类似的)语法，但是目前并没有定义这些语法(注: Python 2.7后使用装饰器了)，这个留给以后的Python 版本解决。</p>
+<p>一些像slots和properties的新特性同样通过新式类的描述器实现，而且编写一个完成一些新颖事情的描述器类并不是很困难。比如，可以写一个描述器类使得编写一个方法的埃菲尔式(Eiffel-style)的先决条件和后置条件成为可能。使用这个特征的类定义如下:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> eiffel <span class="keyword">import</span> eiffelmethod</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">C</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">f</span><span class="params">(self, arg1, arg2)</span>:</span></div><div class="line">        <span class="comment"># The actual function</span></div><div class="line">        ...</div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">pre_f</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="comment"># Check preconditions</span></div><div class="line">        ...</div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">post_f</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="comment"># Check postconditions</span></div><div class="line">        ...</div><div class="line"></div><div class="line">    f = eiffelmethod(f, pre_f, post_f)</div></pre></td></tr></table></figure>
-<ul>
-<li>注意到用户在使用新的<code>eiffelmethod()</code>时并不需要了解描述器的相关知识。这也是我认为新的特性不会增加这门语言的复杂性的原因。为了写出<code>eiffelmethod()</code>或者ZODB或者其它类似的方法的少量程序员还是需要对它有了解，但是大部分的用户仅仅只是在通过库进行开发，并不需要注意实现细节。</li>
-</ul>
-<h3 id="Multiple-Inheritance-The-Diamond-Rule"><a href="#Multiple-Inheritance-The-Diamond-Rule" class="headerlink" title="Multiple Inheritance: The Diamond Rule"></a>Multiple Inheritance: The Diamond Rule</h3><ul>
-<li>通过更改名称解析的规则，多重继承也变得更加又有。参考如下的类的集合(图片取自<a href="https://www.python.org/dev/peps/pep-0253" target="_blank" rel="external">PEP 253</a>):</li>
-</ul>
+<p>注意到用户在使用新的<code>eiffelmethod()</code>时并不需要了解描述器的相关知识。这也是我认为新的特性不会增加这门语言的复杂性的原因。为了写出<code>eiffelmethod()</code>或者ZODB或者其它类似的方法的少量程序员还是需要对它有了解，但是大部分的用户仅仅只是在通过库进行开发，并不需要注意实现细节。</p>
+<h3 id="Multiple-Inheritance-The-Diamond-Rule"><a href="#Multiple-Inheritance-The-Diamond-Rule" class="headerlink" title="Multiple Inheritance: The Diamond Rule"></a>Multiple Inheritance: The Diamond Rule</h3><p>通过更改名称解析的规则，多重继承也变得更加又有。参考如下的类的集合(图片取自<a href="https://www.python.org/dev/peps/pep-0253" target="_blank" rel="external">PEP 253</a>):</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">      <span class="class"><span class="keyword">class</span> <span class="title">A</span>:</span></div><div class="line">        ^ ^  <span class="function"><span class="keyword">def</span> <span class="title">save</span><span class="params">(self)</span>:</span> ...</div><div class="line">       /   \</div><div class="line">      /     \</div><div class="line">     /       \</div><div class="line">    /         \</div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">B</span>     <span class="title">class</span> <span class="title">C</span>:</span></div><div class="line">    ^         ^  <span class="function"><span class="keyword">def</span> <span class="title">save</span><span class="params">(self)</span>:</span> ...</div><div class="line">     \       /</div><div class="line">      \     /</div><div class="line">       \   /</div><div class="line">        \ /</div><div class="line">      <span class="class"><span class="keyword">class</span> <span class="title">D</span></span></div></pre></td></tr></table></figure>
+<p>经典类的查找规则简单但是不够灵活；按照深度优先、从左到右的方式寻找基类。当调用<code>D.save()</code>时将搜索类D, B，然后最后在A找到<code>save()</code>方法并且返回。<code>C.save()</code>方法不会被搜索到。这种方式并不太好，因为如果C的<code>save()</code>方法将保存一些针对于C的内部状态，不调用它将会导致这个状态绝不被保存。</p>
+<p>新式类使用了一个不同的比较难解释的算法，但是在这种情况下会表现正确。(注意在Python 2.3中稍微改变了一下这个算法，使得在大多数情况下有同样的结果，但是在真正复杂的继承图谱时会产生更加有用的结果)</p>
 <ul>
-<li>经典类的查找规则简单但是不够灵活；按照深度优先、从左到右的方式寻找基类。当调用<code>D.save()</code>时将搜索类D, B，然后最后在A找到<code>save()</code>方法并且返回。<code>C.save()</code>方法不会被搜索到。这种方式并不太好，因为如果C的<code>save()</code>方法将保存一些针对于C的内部状态，不调用它将会导致这个状态绝不被保存。</li>
-</ul>
-<ul>
-<li>新式类使用了一个不同的比较难解释的算法，但是在这种情况下会表现正确。(注意在Python 2.3中稍微改变了一下这个算法，使得在大多数情况下有同样的结果，但是在真正复杂的继承图谱时会产生更加有用的结果)<ul>
 <li>列举所有的基类，使用经典查找规则，如果一个类重复访问时会包含多次。在上面的例子中，访问类的列表是[D, B, A, C, A]。</li>
 <li>扫描列表获取重复的类。如果存在重复类则只留下其中最后一个，其它的全部去掉。在上面的例子中，类列表变为[D, B, C, A]。</li>
 </ul>
-</li>
-<li>根据这个规则，调用<code>D.save()</code>时将会返回<code>C.save()</code> ，这也是后面版本的行为。此规则和Common Lisp 所遵循的规则相同。通过新的内建函数<code>super()</code>可以直接调用父类的方法。最常用的方法是<code>super(class, obj)</code>，它返回一个绑定父类的对象(而不是实际的类对象)。这种形式用于方法中可以调用父类的方法；比如，D中的<code>save()</code>方法可以写成这样:</li>
-</ul>
+<p>根据这个规则，调用<code>D.save()</code>时将会返回<code>C.save()</code> ，这也是后面版本的行为。此规则和Common Lisp 所遵循的规则相同。通过新的内建函数<code>super()</code>可以直接调用父类的方法。最常用的方法是<code>super(class, obj)</code>，它返回一个绑定父类的对象(而不是实际的类对象)。这种形式用于方法中可以调用父类的方法；比如，D中的<code>save()</code>方法可以写成这样:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">D</span> <span class="params">(B,C)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">save</span> <span class="params">(self)</span>:</span></div><div class="line">        <span class="comment"># Call superclass .save()</span></div><div class="line">        super(D, self).save()</div><div class="line">        <span class="comment"># Save D's private information here</span></div><div class="line">        ...</div></pre></td></tr></table></figure>
 <ul>
 <li><code>super()</code>在使用<code>super(class)</code>或者<code>super(class1, class2)</code>这种形式时同样能返回未绑定的父类对象，但是这通常不会被用到。</li>
 </ul>
-<h3 id="Attribute-Access"><a href="#Attribute-Access" class="headerlink" title="Attribute Access"></a>Attribute Access</h3><ul>
-<li>大量的复杂的Python类定义<code>__getattr__()</code>钩子(hooks)来访问属性；通常情况下这么做是为了方便，也使得代码具有更好的可读性（通过自动映射诸如<code>obj.parent</code>这样的属性获取到类似<code>obj.get_parent</code>方法）。在Python 2.2中增加了新的方法控制属性获取。</li>
-<li>首先，新式类依然支持<code>__getattr__(attr_name)</code>，与之前无任何不同。与之前一样，如果<code>foo</code>属性不在<code>obj</code>的实例词典中时，使用<code>obj.foo</code>时会调用<code>__getattr__</code>。</li>
-<li>新式类同样支持新方法，<code>__getattribute__(attr_name)</code>。两种方法的不同之处在于访问任何属性时<code>__getattribute__()</code>都会被调用，但是老的<code>__getattr__()</code>只会在<code>foo</code>属性不存在于实例词典时调用。</li>
-<li>然而，Python 2.2中对属性(properties)的支持采用了一种更简单的方式来获得属性(attribute)引用。编写一个<code>__getattr__()</code>方法非常复杂，因为你不能使用在它内部使用常规的属性访问方法(避免无限递归)，而且还会把<code>__dict__</code>的内容搞乱。当检查诸如<code>__repre__()</code>或者<code>__coerce__()</code>等方法时Python最终会调用<code>__getattr__</code>，因此写的时候一定要把这个记在心里。最后，在访问每个属性的时候都调用一个函数会造成可观的性能损失。</li>
-<li><em>属性</em> (<em>property</em>)是打包一个属性(attribute)的get、set、delete这三个方法的内建类型，如果有文档说明，也会包含它。举例来说，如果你想定义一个<code>size</code>属性，该属性通过计算得到，同时设置时也需要进行计算，可以写成:</li>
-</ul>
+<h3 id="Attribute-Access"><a href="#Attribute-Access" class="headerlink" title="Attribute Access"></a>Attribute Access</h3><p>大量的复杂的Python类定义<code>__getattr__()</code>钩子(hooks)来访问属性；通常情况下这么做是为了方便，也使得代码具有更好的可读性（通过自动映射诸如<code>obj.parent</code>这样的属性获取到类似<code>obj.get_parent</code>方法）。在Python 2.2中增加了新的方法控制属性获取。</p>
+<p>首先，新式类依然支持<code>__getattr__(attr_name)</code>，与之前无任何不同。与之前一样，如果<code>foo</code>属性不在<code>obj</code>的实例词典中时，使用<code>obj.foo</code>时会调用<code>__getattr__</code>。</p>
+<p>新式类同样支持新方法，<code>__getattribute__(attr_name)</code>。两种方法的不同之处在于访问任何属性时<code>__getattribute__()</code>都会被调用，但是老的<code>__getattr__()</code>只会在<code>foo</code>属性不存在于实例词典时调用。</p>
+<p>然而，Python 2.2中对属性(properties)的支持采用了一种更简单的方式来获得属性(attribute)引用。编写一个<code>__getattr__()</code>方法非常复杂，因为你不能使用在它内部使用常规的属性访问方法(避免无限递归)，而且还会把<code>__dict__</code>的内容搞乱。当检查诸如<code>__repre__()</code>或者<code>__coerce__()</code>等方法时Python最终会调用<code>__getattr__</code>，因此写的时候一定要把这个记在心里。最后，在访问每个属性的时候都调用一个函数会造成可观的性能损失。</p>
+<p><em>属性</em> (<em>property</em>)是打包一个属性(attribute)的get、set、delete这三个方法的内建类型，如果有文档说明，也会包含它。举例来说，如果你想定义一个<code>size</code>属性，该属性通过计算得到，同时设置时也需要进行计算，可以写成:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">C</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_size</span> <span class="params">(self)</span>:</span></div><div class="line">        result = ... computation ...</div><div class="line">        <span class="keyword">return</span> result</div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">set_size</span> <span class="params">(self, size)</span>:</span></div><div class="line">        ... compute something based on the size</div><div class="line">        <span class="keyword">and</span> set internal state appropriately ...</div><div class="line"></div><div class="line">    <span class="comment"># Define a property.  The 'delete this attribute'</span></div><div class="line">    <span class="comment"># method is defined as None, so the attribute</span></div><div class="line">    <span class="comment"># can't be deleted.</span></div><div class="line">    size = property(get_size, set_size,</div><div class="line">                    <span class="keyword">None</span>,</div><div class="line">                    <span class="string">"Storage size of this instance"</span>)</div></pre></td></tr></table></figure>
-<ul>
-<li>相比于编写一对当属性为<code>size</code>时采取特殊处理方法，其它属性从<code>__dict__</code>中检索的<code>__getattr()__/__setattr__()</code>方法，这个显然更清晰简单。对<code>size</code>的访问入口将是唯一的，这样会提高调用函数的性能，因为涉及到其它属性都是正常的速度。</li>
-<li>最后，通过新的类属性<code>__slots___</code>可以限制对象可用的属性集合。Python 对象具有很强的动态性，在任何时间都可以通过<code>obj.new_attr=1</code>的形式为实例增加一个新的属性。新式类中你可以通过给类属性<code>__slots___</code>定义一个名称集合来限制其合法属性。如下:</li>
-</ul>
+<p>相比于编写一对当属性为<code>size</code>时采取特殊处理方法，其它属性从<code>__dict__</code>中检索的<code>__getattr()__/__setattr__()</code>方法，这个显然更清晰简单。对<code>size</code>的访问入口将是唯一的，这样会提高调用函数的性能，因为涉及到其它属性都是正常的速度。</p>
+<p>最后，通过新的类属性<code>__slots___</code>可以限制对象可用的属性集合。Python 对象具有很强的动态性，在任何时间都可以通过<code>obj.new_attr=1</code>的形式为实例增加一个新的属性。新式类中你可以通过给类属性<code>__slots___</code>定义一个名称集合来限制其合法属性。如下:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="class"><span class="keyword">class</span> <span class="title">C</span><span class="params">(object)</span>:</span></div><div class="line"><span class="meta">... </span>    __slots__ = (<span class="string">'template'</span>, <span class="string">'name'</span>)</div><div class="line">...</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>obj = C()</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">print</span> obj.template</div><div class="line"><span class="keyword">None</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>obj.template = <span class="string">'Test'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">print</span> obj.template</div><div class="line">Test</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>obj.newattr = <span class="keyword">None</span></div><div class="line">Traceback (most recent call last):</div><div class="line">  File "&lt;stdin&gt;", line 1, in ?</div><div class="line">AttributeError: <span class="string">'C'</span> object has no attribute <span class="string">'newattr'</span></div></pre></td></tr></table></figure>
-<ul>
-<li>注意当你获取一个不在<code>__slots__</code>中的属性时会得到<code>AttributeError</code>异常。</li>
-</ul>
-<h2 id="PEP-234-Iterators"><a href="#PEP-234-Iterators" class="headerlink" title="PEP 234: Iterators"></a>PEP 234: Iterators</h2><ul>
-<li>2.2中的另一个重大更新是C和Python层面的迭代器接口。可以定义对象在被调用时的遍历方式。</li>
-<li>2.2之前，使得语句<code>for item in obj</code>工作的方式是定义如下的<code>__getitem()__</code>方法:</li>
-</ul>
+<p>注意当你获取一个不在<code>__slots__</code>中的属性时会得到<code>AttributeError</code>异常。</p>
+<h2 id="PEP-234-Iterators"><a href="#PEP-234-Iterators" class="headerlink" title="PEP 234: Iterators"></a>PEP 234: Iterators</h2><p>2.2中的另一个重大更新是C和Python层面的迭代器接口。可以定义对象在被调用时的遍历方式。</p>
+<p>2.2之前，使得语句<code>for item in obj</code>工作的方式是定义如下的<code>__getitem()__</code>方法:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">__getitem__</span><span class="params">(self, index)</span>:</span></div><div class="line">    <span class="keyword">return</span> &lt;next item&gt;</div></pre></td></tr></table></figure>
-<ul>
-<li><code>__getitem()__</code>更适合的用法是定义对象的索引操作，这样你就可以写<code>obj[5]</code>这样的语句获取第6个元素。当你使用这个方法只是为了支持<code>for</code>循环时就显得有点误导性了。比如想要遍历一些文件型对象(file-like object)；<em>index</em>参数就显得没有意义了，因为这个类可能假设会多次调用<code>__getitem__()</code>方法(每次增加<em>index</em>的值)。换句话说，<code>__getitem__()</code>并不是意味着使用<code>file[5]</code>随机访问第六个元素，即使它应该这样。</li>
-<li>在Python 2.2中，迭代可以分开实现，这样<code>__getitem()__</code>方法可以仅用作随机访问。迭代的基本思想很简单。新的内建函数<code>iter(obj)</code>或者<code>iter(obj, sentinel)</code>用来获取一个迭代器。<code>iter(obj)</code>返回obj的迭代器对象，<code>iter(C, sentinel)</code>返回一个重复调用可执行对象C直到遇到sentinel的迭代器。</li>
-<li>Python类中可以定义<code>__iter__()</code>方法来创建和返回作用于对象的新迭代器；如果迭代器就是对象本身，只需要返回self。一般来说，迭代器通常都是自己的迭代器。C中实现的扩展类型可以实现<code>tp_iter</code>方法来返回一个迭代器，如果一个扩展类型想要拥有迭代器的行为，可以定义<code>tp_iternext</code>方法。</li>
-<li>那么到目前为止，迭代器到底做了些什么？它们有一个<code>next()</code>方法，该方法无参数同时返回下一个值。当不存在任何值的时候，调用<code>next()</code>会抛<code>StopIteration</code>异常。</li>
-</ul>
+<p><code>__getitem()__</code>更适合的用法是定义对象的索引操作，这样你就可以写<code>obj[5]</code>这样的语句获取第6个元素。当你使用这个方法只是为了支持<code>for</code>循环时就显得有点误导性了。比如想要遍历一些文件型对象(file-like object)；<em>index</em>参数就显得没有意义了，因为这个类可能假设会多次调用<code>__getitem__()</code>方法(每次增加<em>index</em>的值)。换句话说，<code>__getitem__()</code>并不是意味着使用<code>file[5]</code>随机访问第六个元素，即使它应该这样。</p>
+<p>在Python 2.2中，迭代可以分开实现，这样<code>__getitem()__</code>方法可以仅用作随机访问。迭代的基本思想很简单。新的内建函数<code>iter(obj)</code>或者<code>iter(obj, sentinel)</code>用来获取一个迭代器。<code>iter(obj)</code>返回obj的迭代器对象，<code>iter(C, sentinel)</code>返回一个重复调用可执行对象C直到遇到sentinel的迭代器。</p>
+<p>Python类中可以定义<code>__iter__()</code>方法来创建和返回作用于对象的新迭代器；如果迭代器就是对象本身，只需要返回self。一般来说，迭代器通常都是自己的迭代器。C中实现的扩展类型可以实现<code>tp_iter</code>方法来返回一个迭代器，如果一个扩展类型想要拥有迭代器的行为，可以定义<code>tp_iternext</code>方法。</p>
+<p>那么到目前为止，迭代器到底做了些什么？它们有一个<code>next()</code>方法，该方法无参数同时返回下一个值。当不存在任何值的时候，调用<code>next()</code>会抛<code>StopIteration</code>异常。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>L = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>i = iter(L)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">print</span> i</div><div class="line">&lt;iterator object at <span class="number">0x8116870</span>&gt;</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>i.next()</div><div class="line"><span class="number">1</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>i.next()</div><div class="line"><span class="number">2</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>i.next()</div><div class="line"><span class="number">3</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>i.next()</div><div class="line">Traceback (most recent call last):</div><div class="line">  File "&lt;stdin&gt;", line 1, in ?</div><div class="line">StopIteration</div><div class="line">&gt;&gt;&gt;</div></pre></td></tr></table></figure>
-<ul>
-<li>在2.2中，Python的<code>for</code>语句不在需要一个序列；而是需要一个在调用<code>iter()</code>时能返回迭代器的变量。为了保持向后兼容，没有实现<code>__iter()___</code>或者<code>tp_iter</code>位的序列会自动生成迭代器，因此<code>for i in [1,2,3]</code>仍正常工作。现在Python解释器遍历一个序列时都会用到迭代器协议。这意味着如下代码都是正确的:</li>
-</ul>
+<p>在2.2中，Python的<code>for</code>语句不在需要一个序列；而是需要一个在调用<code>iter()</code>时能返回迭代器的变量。为了保持向后兼容，没有实现<code>__iter()___</code>或者<code>tp_iter</code>位的序列会自动生成迭代器，因此<code>for i in [1,2,3]</code>仍正常工作。现在Python解释器遍历一个序列时都会用到迭代器协议。这意味着如下代码都是正确的:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>L = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>i = iter(L)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a,b,c = i</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a,b,c</div><div class="line">(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>)</div></pre></td></tr></table></figure>
-<ul>
-<li>一些Python的基本类型已经支持了迭代器。在词典(<em>dict</em>)上调用<code>iter()</code>将会返回一个遍历它的键的迭代器:</li>
-</ul>
+<p>一些Python的基本类型已经支持了迭代器。在词典(<em>dict</em>)上调用<code>iter()</code>将会返回一个遍历它的键的迭代器:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>m = &#123;<span class="string">'Jan'</span>: <span class="number">1</span>, <span class="string">'Feb'</span>: <span class="number">2</span>, <span class="string">'Mar'</span>: <span class="number">3</span>, <span class="string">'Apr'</span>: <span class="number">4</span>, <span class="string">'May'</span>: <span class="number">5</span>, <span class="string">'Jun'</span>: <span class="number">6</span>,</div><div class="line"><span class="meta">... </span>     <span class="string">'Jul'</span>: <span class="number">7</span>, <span class="string">'Aug'</span>: <span class="number">8</span>, <span class="string">'Sep'</span>: <span class="number">9</span>, <span class="string">'Oct'</span>: <span class="number">10</span>, <span class="string">'Nov'</span>: <span class="number">11</span>, <span class="string">'Dec'</span>: <span class="number">12</span>&#125;</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> key <span class="keyword">in</span> m: <span class="keyword">print</span> key, m[key]</div><div class="line">...</div><div class="line">Mar <span class="number">3</span></div><div class="line">Feb <span class="number">2</span></div><div class="line">Aug <span class="number">8</span></div><div class="line">Sep <span class="number">9</span></div><div class="line">May <span class="number">5</span></div><div class="line">Jun <span class="number">6</span></div><div class="line">Jul <span class="number">7</span></div><div class="line">Jan <span class="number">1</span></div><div class="line">Apr <span class="number">4</span></div><div class="line">Nov <span class="number">11</span></div><div class="line">Dec <span class="number">12</span></div><div class="line">Oct <span class="number">10</span></div></pre></td></tr></table></figure>
-<ul>
-<li>这只是默认的行为。你还可以通过调用<code>iterkeys()</code>、<code>itervalues()</code>、<code>iteritems()</code>来迭代键、值、或者键值对。在一个小的相关变化中，<code>in</code>操作现在也可以用于词典，因此<code>key in dict</code>现在等价于<code>dict.has_key(key)</code>。</li>
-<li>文件同样提供迭代器，它一直调用<code>readline()</code>的方法直到文件末尾。这意味着你可以通过如下方法读取文件每一行:</li>
-</ul>
+<p>这只是默认的行为。你还可以通过调用<code>iterkeys()</code>、<code>itervalues()</code>、<code>iteritems()</code>来迭代键、值、或者键值对。在一个小的相关变化中，<code>in</code>操作现在也可以用于词典，因此<code>key in dict</code>现在等价于<code>dict.has_key(key)</code>。</p>
+<p>文件同样提供迭代器，它一直调用<code>readline()</code>的方法直到文件末尾。这意味着你可以通过如下方法读取文件每一行:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span> line <span class="keyword">in</span> file:</div><div class="line">    <span class="comment"># do something for each line</span></div><div class="line">    ...</div></pre></td></tr></table></figure>
-<ul>
-<li>注意：在迭代器中只能往前走，往回走、重置迭代器或者拷贝迭代器都是不行的。虽然一个迭代器对象能够提供额外的这些能力，但是迭代器协议只需要一个<code>next()</code>方法。</li>
-</ul>
+<p>注意：在迭代器中只能往前走，往回走、重置迭代器或者拷贝迭代器都是不行的。虽然一个迭代器对象能够提供额外的这些能力，但是迭代器协议只需要一个<code>next()</code>方法。</p>
 
           
         
