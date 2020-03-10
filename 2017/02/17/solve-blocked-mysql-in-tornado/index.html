@@ -102,7 +102,7 @@
 <meta property="og:site_name" content="Lecher的博客">
 <meta property="og:description" content="1.介绍使用多Tornado的都知道,在Tornado中所有的操作都建议采用异步的形式,但是实际情况是很多的操作并没有异步版本, 比如现在要解决的就是MySQL的同步阻塞问题.通过调查别家大牛的处理方案, 个人觉得最简单,对代码修改程度最小的当属:线程池+MySQL连接池的方案. 2.方案概述使用这种方案,核心有下面几点:  借助tornado.concurrent.run_on_executor">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-11-21T07:50:50.903Z">
+<meta property="og:updated_time" content="2017-11-21T07:50:50.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="在Tornado中将MySQL同步操作封装到线程池中处理">
 <meta name="twitter:description" content="1.介绍使用多Tornado的都知道,在Tornado中所有的操作都建议采用异步的形式,但是实际情况是很多的操作并没有异步版本, 比如现在要解决的就是MySQL的同步阻塞问题.通过调查别家大牛的处理方案, 个人觉得最简单,对代码修改程度最小的当属:线程池+MySQL连接池的方案. 2.方案概述使用这种方案,核心有下面几点:  借助tornado.concurrent.run_on_executor">
@@ -406,8 +406,8 @@ def query(self, *args, **kwargs):
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/01/22/android-auto-build-tool/" rel="next" title="简易安卓自动化打包平台">
-                <i class="fa fa-chevron-left"></i> 简易安卓自动化打包平台
+              <a href="/2017/01/22/transform-simlehttp/" rel="next" title="SimpleHTTPServer的改造">
+                <i class="fa fa-chevron-left"></i> SimpleHTTPServer的改造
               </a>
             
           </div>
@@ -495,7 +495,7 @@ def query(self, *args, **kwargs):
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-count">14</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -508,7 +508,7 @@ def query(self, *args, **kwargs):
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-count">16</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
@@ -566,7 +566,7 @@ def query(self, *args, **kwargs):
         <div class="copyright" >
   
   &copy; 
-  <span itemprop="copyrightYear">2018</span>
+  <span itemprop="copyrightYear">2020</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
