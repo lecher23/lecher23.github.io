@@ -78,7 +78,7 @@
 <link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="RPC,Tornado,MicroService," />
+  <meta name="keywords" content="Tornado,RPC,MicroService," />
 
 
 
@@ -95,7 +95,7 @@
 
 
 <meta name="description" content="在进行服务拆分的时候，不同服务之间使用HTTP协议来进行数据交互是最常见的一种解决方案。 之前我在做数据层和业务层分离时，采取的方案是双层Tornado+异步HTTP请求的方式进行数据交互，今天心血来潮，写了下脚本测试服务之间的异步HTTP调用，使用netstat 命令发现TIME_WAIT状态特别多。 原因很简单，异步HTTP调用使用的是tornado的AsyncHTTPClient，它会在每次">
-<meta name="keywords" content="RPC,Tornado,MicroService">
+<meta name="keywords" content="Tornado,RPC,MicroService">
 <meta property="og:type" content="article">
 <meta property="og:title" content="异步RPC框架探究">
 <meta property="og:url" content="http://blog.lecher.tech/2017/08/15/rpc-for-tornado/index.html">
@@ -442,9 +442,9 @@ cli.remote_call(X.function_in_class, mycallback)
       
         <div class="post-tags">
           
-            <a href="/tags/RPC/" rel="tag"># RPC</a>
-          
             <a href="/tags/Tornado/" rel="tag"># Tornado</a>
+          
+            <a href="/tags/RPC/" rel="tag"># RPC</a>
           
             <a href="/tags/MicroService/" rel="tag"># MicroService</a>
           
@@ -548,7 +548,7 @@ cli.remote_call(X.function_in_class, mycallback)
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-count">15</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -561,7 +561,7 @@ cli.remote_call(X.function_in_class, mycallback)
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-count">17</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
