@@ -328,356 +328,20 @@
       
         
           
-            <p>&nbsp;&nbsp;最近在写一个德州扑克的逻辑, 抽象出问题就是: 给出2张私有牌以及5张公共牌,<br>请问如何找到最大的牌型组合.</p>
-<h2 id="德州扑克牌型介绍"><a href="#德州扑克牌型介绍" class="headerlink" title="德州扑克牌型介绍"></a>德州扑克牌型介绍</h2><p>德州扑克的牌型从大到小排列如下:</p>
-<ul>
-<li>皇家同花顺：同花色的A、K、Q、J、10。</li>
-<li>同花顺：五张同花色的连续牌。</li>
-<li>四条：四张是相同点数的牌，第五张是随意的一张牌。</li>
-<li>葫芦：三张相同点数及任何两张其他相同点数的扑克牌组成。</li>
-<li>同花：五张不按顺序但花色相同的牌组成。</li>
-<li>顺子：五张顺序扑克牌组成。</li>
-<li>三条：三张相同点数和两张不同点数的牌组成。</li>
-<li>两对：两对点数相同但两两不同的扑克和随意的一张牌组成。</li>
-<li>对子：两张点相同的牌。</li>
-<li>高牌：既不是同一花色也不是同一点数的五张牌组成。</li>
-</ul>
-<h2 id="解决思路"><a href="#解决思路" class="headerlink" title="解决思路"></a>解决思路</h2><p>一种比较直观的解法就是穷举所有的可能性,然后从中找到一个最大牌型,但是这种方法并非最优解.<br>另外一种方法就是根据牌型从大到小去判断能否由 2+3 组成.<br><br>我使用第二种思路来解决问题.<br><br>首先, 我们将同花这种情况独立出来, 根据私有牌组成可以判断其是否有可能组成同花.<br>然后, 观察两张私有牌, 然后得出其升级路线:<br></p>
-<ul>
-<li><p>两张私有牌之差为(0, 5), 判断其是否可能为: 皇家同花顺/同花顺/同花/顺子,<br>因为只要是前面三种, 那么四条/葫芦是不可能出现的, 而且如果是顺子, 而且判断可能出现同花,<br>那么可以得出最大牌型为同花</p>
-</li>
-<li><p>两张私有牌相等, 判断其是否可能为: 四条/葫芦/同花/三条/两对/对子,<br>为了加快我们的判断过程, 可以在算法启动时对公共牌进行特征分类,<br>一个是其每个牌值的出现次数统计, 另外一个就是对颜色的统计</p>
-</li>
-<li><p>其它情况, 判断其是否可能为: 四条/葫芦/同花/三条/两对/对子/高牌</p>
-</li>
-</ul>
-<p>需要注意的是, 路线一和路线二是互斥的, 而路线二不会到达路线三.</p>
-<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><pre class="prettyprint lang-python">
-class ResultType(object):
-    HighCard = 1  # 高牌
-    SinglePair = 2  # 对子
-    TwoPair = 3  # 两对
-    Three = 4  # 三条
-    Sequence = 5  # 顺子
-    SameColor = 6  # 同花
-    Gourd = 7  # 葫芦
-    Four = 8  # 四条
-    Flush = 9  # 同花顺
-    RoyalFlush = 10  # 皇家同花顺
+          &nbsp;&nbsp;最近在写一个德州扑克的逻辑, 抽象出问题就是: 给出2张私有牌以及5张公共牌,请问如何找到最大的牌型组合.
+德州扑克牌型介绍德州扑克的牌型从大到小排列如下:
 
-
-ResultTypeStr = ('', '高牌', '对子', '两对', '三条', '顺子', '同花', '葫芦', '四条', '同花顺', '皇家同花顺')
-
-
-class TaxasSolution(object):
-    def __init__(self, t, w):
-        self.result_type = t
-        self.origin = w
-        factor = (0, 4, 8, 12, 16)
-        if isinstance(w, list):
-            s = 0
-            for i, www in enumerate(reversed(w)):
-                s += (www << factor[i])
-            self.weight = s
-        else:
-            self.weight = w
-
-    def __lt__(self, other):
-        if self.result_type != other.result_type:
-            return self.result_type - other.result_type < 0
-        return self.weight - other.weight < 0
-
-    def __gt__(self, other):
-        if self.result_type != other.result_type:
-            return self.result_type - other.result_type > 0
-        return self.weight - other.weight > 0
-
-    def __eq__(self, other):
-        if self.result_type != other.result_type:
-            return False
-        return self.weight == other.weight
-
-    def __ne__(self, other):
-        if self.result_type != other.result_type:
-            return True
-        return self.weight != other.weight
-
-    def __str__(self):
-        out = [
-            'weight is {0}'.format(self.weight),
-            '牌型为:{0}'.format(ResultTypeStr[self.result_type]),
-            '组合为:{0}'.format(self.origin)
-        ]
-        return '\n'.join(out)
-
-
-class TaxasPlayer(CardPlayer):
-    def __init__(self, cds, pub_attr):
-        self.pub = pub_attr
-        self.min = cds[0].value
-        self.max = cds[1].value
-        self.unique_type = None
-        super(TaxasPlayer, self).__init__(cds)
-
-    def init_data(self):
-        if self.min == 1:
-            self.min = 14
-        if self.max == 1:
-            self.max = 14
-        if self.min > self.max:
-            self.min, self.max = self.max, self.min
-        if self.cards[0].type == self.cards[1].type:
-            self.unique_type = self.cards[0].type
-
-    def find_best_solution(self):
-        sc = None
-        if self.may_same_color() and self.pub.types_count[self.unique_type] > 2:
-            w = [self.max, self.min] + self.pub.get_same_type_values(self.unique_type)
-            w.sort(reverse=True)
-            sc = TaxasSolution(ResultType.SameColor, w)
-        solution = self.step_1(sc)
-        if not solution:
-            solution = self.step_2(sc)
-            if not solution:
-                solution = self.step_3(sc)
-        return solution
-
-    def may_seq(self):
-        return 0 < self.max - self.min < 5
-
-    def may_pair(self):
-        return self.max == self.min
-
-    def may_same_color(self):
-        return self.unique_type is not None
-
-    def step_1(self, may_same_color):
-        # 判断是否有顺子
-        if self.may_seq():
-            start, end = self.get_value_to_seq(self.min, self.max, 2, 14)
-            seq_max = None
-            while True:
-                can_be_seq = True
-                can_be_same_color = True
-                for i in range(end - 4, end + 1):
-                    if i == self.min or i == self.max:
-                        continue
-                    if i not in self.pub.values:
-                        can_be_seq = False
-                        break
-                    if can_be_same_color and may_same_color:
-                        can_be_same_color = self.unique_type in self.pub.value_types[i]
-                if can_be_seq:
-                    if not may_same_color:
-                        return TaxasSolution(ResultType.Sequence, end)
-                    if can_be_same_color:
-                        return TaxasSolution(ResultType.Flush, end) if \
-                            end <= 2="" cardnum.card_k="" else="" taxassolution(resulttype.royalflush,="" 0)="" seq_max="seq_max" or="" end="" -="1" if="" start="" <="" 4:="" break="" seq_max:="" return="" may_same_color="" taxassolution(resulttype.sequence,="" seq_max)="" none="" def="" step_2(self,="" may_same_color):="" #="" prv:="" a="" 判断牌型="" self.may_pair():="" val="self.max" pub_val_cnt="self.pub.values.get(val," val_sum="pub_val_cnt" +="" 先判断是不是四条="" aaaab="" taxassolution(resulttype.four,="" (val="" <<="" 4)="" self.pub.max_except(val))="" solution="None" 再判断是不是葫芦:="" 要求="" 起码有三个相同的="" tmp="self.pub.values.items()" len(self.pub.values)="" 5:="" for="" card_value,="" card_count="" in="" tmp:="" card_value="=" val:="" continue="">= 3:
-                        if val_sum == 3:
-                            s = TaxasSolution(
-                                ResultType.Gourd, (card_value << 4) + val if card_value > val \
-                                    else (val << 4) + card_value)
-                        else:
-                            return TaxasSolution(ResultType.Gourd, (card_value << 4) + val)
-                    elif card_count == 2 and val_sum == 3:
-                        s = TaxasSolution(ResultType.Gourd, (val << 4) + card_value)
-                    else:
-                        continue
-                    solution = self.choice_solution(s, solution) if solution else s
-                if solution:
-                    return solution
-
-            # 判断是不是同花
-            if may_same_color:
-                return may_same_color
-
-            # 判断是不是三条
-            if val_sum == 3:
-                return TaxasSolution(ResultType.Three, [val] + self.pub.max_except(val, 2))
-
-            # 判断是不是两对
-            for card_value, card_count in tmp:
-                if card_count == 2:
-                    s = TaxasSolution(ResultType.TwoPair,
-                                      [val, card_value, self.pub.max_except(card_value)] if val > card_value \
-                                          else [card_value, val, self.pub.max_except(card_value)])
-                    solution = self.choice_solution(s, solution) if solution else s
-            if solution:
-                return solution
-
-            # 肯定是对子
-            return TaxasSolution(ResultType.SinglePair, [val] + self.pub.max_n(3))
-
-    def step_3(self, may_same_color):
-        # 四条
-        prv_cards = (self.min, self.max)
-        tmp = self.pub.values.items()
-        val_2 = val_3 = None
-        for card_val, card_count in tmp:
-            if card_count == 3:
-                if card_val in prv_cards:
-                    x = prv_cards[0] if card_val == prv_cards[1] else prv_cards[1]
-                    return TaxasSolution(ResultType.Four, (card_val << 4) + x)
-                else:
-                    val_3 = card_val
-            elif card_count == 2:
-                if not val_2:
-                    val_2 = card_val
-                elif val_2 < card_val:
-                    val_2 = card_val
-        # 葫芦
-        x, y = self.pub.values.get(self.min, 0) + 1, self.pub.values.get(self.max, 0) + 1
-        if x == 2 and y == 3:
-            return TaxasSolution(ResultType.Gourd, (self.max << 4) + self.min)
-        elif x == 3 and y == 2:
-            return TaxasSolution(ResultType.Gourd, (self.min << 4) + self.max)
-        elif x == 3 and y == 3:
-            return TaxasSolution(ResultType.Gourd, (self.max << 4) + self.min)
-
-        if may_same_color:
-            return may_same_color
-
-        # 三条
-        if x == 3:
-            other = self.pub.max_except(self.min)
-            return TaxasSolution(ResultType.Three,
-                                 [self.min, other, self.max] if other > self.max else [self.min, self.max, other])
-        elif y == 3:
-            other = self.pub.max_except(self.max)
-            return TaxasSolution(ResultType.Three,
-                                 [self.max, other, self.min] if other > self.min else [self.max, self.min, other])
-        elif val_3:
-            return TaxasSolution(ResultType.Three, (val_3 << 8) + (self.max << 4) + self.min)
-
-        # 两对
-        if x == 2 and y == 2:
-            return TaxasSolution(
-                ResultType.TwoPair, (self.max << 8) + (self.min << 4) + self.pub.max_except_some(self.max, self.min))
-        elif val_2:
-            if x == 2:
-                l, m = (self.min, val_2) if val_2 < self.min else (val_2, self.min)
-                r = self.max
-                return TaxasSolution(ResultType.TwoPair, (l << 8) + (m << 4) + r)
-            elif y == 2:
-                l, m = (self.max, val_2) if val_2 < self.max else (val_2, self.max)
-                r = self.min
-                return TaxasSolution(ResultType.TwoPair, (l << 8) + (m << 4) + r)
-
-        # 对子
-        if x == 2:
-            weight = [self.max] + self.pub.max_except(self.min, 2)
-            weight.sort(reverse=True)
-            return TaxasSolution(ResultType.SinglePair, [self.min] + weight)
-        elif y == 2:
-            weight = [self.min] + self.pub.max_except(self.max, 2)
-            weight.sort(reverse=True)
-            return TaxasSolution(ResultType.SinglePair, [self.max] + weight)
-        elif val_2:
-            weight = [self.min, self.max, self.pub.max_except(val_2)]
-            weight.sort(reverse=True)
-            return TaxasSolution(ResultType.SinglePair, [val_2] + weight)
-        weight = [self.max, self.min] + self.pub.max_n(3)
-        weight.sort(reverse=True)
-        return TaxasSolution(ResultType.HighCard, weight)
-
-    @staticmethod
-    def choice_solution(a, b):
-        if a.result_type == b.result_type:
-            return a if a.weight > b.weight else b
-        return a if a.result_type > b.result_type else b
-
-    @staticmethod
-    def get_value_to_seq(num1, num2, left, right):
-        '''注意这里的A的值已经是14了'''
-        if num1 > num2:
-            num1, num2 = num2, num1
-        diff = 5 - num2 + num1 - 1
-        s = num1 - diff
-        s = s < left and left or s
-        e = num2 + diff
-        e = e > right and right or e
-        return s, e
-
-    def __str__(self):
-        card_type_str = ('', '黑桃', '红桃', '方块', '草花', '小王', '大王')
-        out = []
-        for card in self.cards:
-            out.append('%s_%d' % (card_type_str[card.type], card.value))
-        return ','.join(out)
-
-
-class PubCardsAttr(object):
-    def __init__(self, cds):
-        self.values = {}
-        self.value_types = {}
-        self.sorted_values = []
-        self.types_count = [0] * 7
-        self.cards = cds
-
-        for card in self.cards:
-            t, v = card.type, card.value
-            if v == 1:
-                v = 14
-            self.types_count[t] += 1
-            if v < CardNum.Card_2:
-                v = 14
-            self.values[v] = self.values.get(v, 0) + 1
-            self.sorted_values.append(v)
-            if v not in self.value_types:
-                self.value_types[v] = set()
-            self.value_types[v].add(t)
-        self.sorted_values.sort(reverse=True)
-
-    @staticmethod
-    def cmp_card(a, b):
-        av = a.value if a.value > 1 else 14
-        bv = b.value if b.value > 1 else 14
-        return av - bv
-
-    def max_n(self, n):
-        return self.sorted_values[:n]
-
-    def max_except(self, n, wanted=None):
-        out = []
-        for i in self.sorted_values:
-            if i != n:
-                if not wanted:
-                    return i
-                out.append(i)
-                if len(out) == wanted:
-                    return out
-        raise Exception('should not be here')
-
-    def max_except_some(self, *args):
-        for i in self.sorted_values:
-            if i not in args:
-                return i
-        raise Exception('should not be here.')
-
-    def get_same_type_values(self, tar):
-        self.cards.sort(cmp=self.cmp_card, reverse=True)
-        out = []
-        for card in self.cards:
-            if card.type == tar:
-                if card.value == 1:
-                    out.append(14)
-                else:
-                    out.append(card.value)
-                if len(out) == 3:
-                    break
-        return out
-
-    def __str__(self):
-        card_type_str = ('', '黑桃', '红桃', '方块', '草花', '小王', '大王')
-        out = []
-        for card in self.cards:
-            out.append('%s_%d' % (card_type_str[card.type], card.value))
-        return ','.join(out)
-</=></pre>
-
-<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><p>在完成后, 需要使用完备的测试对其进行测试, 用例就不在这赘述了.<br><br>代码不是很完善, 还有很多可以改善的地方.</p>
-
-          
+皇家同花顺：同花色的A、K、Q、J、10。
+同花顺：五张同花色的连续牌。
+四条：四张是相同点数的牌，第五张是随意的一
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017/03/21/taxas-poker-solution/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -795,16 +459,18 @@ class PubCardsAttr(object):
       
         
           
-            <p>最近在整合支付宝和微信的支付后台, 有几个值得注意的点记录下来, 留作以后的备忘.</p>
-<ul>
-<li>提供的回调接口要注意处理重复的支付结果通知, 在很多时候, 同一个交易服务器有可能收到多次通知, 要求在实现回调服务器时遇到重复通知应该慎重对待,以免造成资金损失</li>
-<li>支付链接或者预支付ID在发送给客户端时注意数据保密性, 尤其是HTTP请求下,很容易被伪造,一般解决方法为:<br>通过加入特殊字符串并计算MD5值来告诉客户端这个数据的确是来自服务器的,<br>或者直接使用秘钥对结果进行加密</li>
-<li>订单查询逻辑: 服务器先从数据库中读取订单信息, 没有或者信息为支付失败时需要向三方服务器查询订单信息,<br>随后更新到数据库,成功时还需要将对应的商品加入到用户的账户</li>
-<li>一定要留出接口处理打折,促销时的价格处理</li>
-</ul>
-<p>以上几点就是我自己在做项目时印象比较深刻的.</p>
+          最近在整合支付宝和微信的支付后台, 有几个值得注意的点记录下来, 留作以后的备忘.
 
-          
+提供的回调接口要注意处理重复的支付结果通知, 在很多时候, 同一个交易服务器有可能收到多次通知, 要求在实现回调服务器时遇到重复通知应该慎重对待,以免造成资金损失
+支付链接或者预支付ID在发送给客户端时注意数据保密
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017/02/21/sth-important-on-payment-sys/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -922,56 +588,16 @@ class PubCardsAttr(object):
       
         
           
-            <h3 id="1-介绍"><a href="#1-介绍" class="headerlink" title="1.介绍"></a>1.介绍</h3><p>使用多Tornado的都知道,在Tornado中所有的操作都建议采用异步的形式,<br>但是实际情况是很多的操作并没有异步版本, 比如现在要解决的就是MySQL的同步阻塞问题.<br>通过调查别家大牛的处理方案, 个人觉得最简单,对代码修改程度最小的当属:<br>线程池+MySQL连接池的方案.</p>
-<h3 id="2-方案概述"><a href="#2-方案概述" class="headerlink" title="2.方案概述"></a>2.方案概述</h3><p>使用这种方案,核心有下面几点:</p>
-<ul>
-<li>借助tornado.concurrent.run_on_executor装饰器将需要丢入到线程池的任务装饰起来</li>
-<li>实现一个线程池,必须提供提交任务的submit方法</li>
-<li>实现一个MySQL连接池,保证各个MySQL请求之间数据互不干涉</li>
-<li>在handler中使用yield和tornado.web.asynchronous保证异步执行</li>
-</ul>
-<h3 id="3-run-on-executor代码解析"><a href="#3-run-on-executor代码解析" class="headerlink" title="3.run_on_executor代码解析"></a>3.run_on_executor代码解析</h3><p>直接看代码:</p>
-<p><pre class="prettyprint lang-python"><br>def run_on_executor(<em>args, **kwargs):<br>    def run_on_executor_decorator(fn):<br>        executor = kwargs.get(“executor”, “executor”)<br>        io_loop = kwargs.get(“io_loop”, “io_loop”)<br>        @functools.wraps(fn)<br>        def wrapper(self, </em>args, <strong>kwargs):<br>            callback = kwargs.pop(“callback”, None)<br>            future = getattr(self, executor).submit(fn, self, *args, </strong>kwargs)<br>            if callback:<br>                getattr(self, io_loop).add_future(<br>                    future, lambda future: callback(future.result()))<br>            return future<br>        return wrapper</pre></p>
-<pre><code># 省去无关代码
-return run_on_executor_decorator
-</code></pre><p><br>我觉得重要的几个点:</p>
-<ul>
-<li>装饰器会从装饰的方法的实例中寻找线程池实例(也就是获取executor)</li>
-<li>装饰器会将装饰的方法提交到线程池中运行, 而submit方法会返回一个Future对象</li>
-<li>如果装饰的方法提供了callback参数, 那么会在任务执行结束后执行callback函数,<br>具体如何执行,下面会介绍</li>
-<li>在调用被装饰的方法时, 会返回一个Future对象,<br>这满足了tornado的tornado.web.asynchronous装饰器要求</li>
-<li>当需要在任务处理完成时处理一些额外逻辑, 必须在参数中传入callback,<br>但是确保自己已经在类中设置了io_loop,如果需要在程序结束时处理返回的值,<br>则必须要在传入的参数中增加callback参数.</li>
-</ul>
-<p>当callback参数存在时执行的逻辑为:将future加入到io_loop中去,io_loop中add_future的用法是:<br>在future的完成回调中增加一个方法,该方法会将callback增加到io_loop的主循环待处理callback队列中.</p>
-<h3 id="4-ThreadPoolExecutor的submit方法"><a href="#4-ThreadPoolExecutor的submit方法" class="headerlink" title="4.ThreadPoolExecutor的submit方法"></a>4.ThreadPoolExecutor的submit方法</h3><p>使用线程池时,不用重复造轮子,可以直接使用ThreadPoolExecutor来构造线程池,<br>需要注意的是Python2.7下需要使用 pip install futures 来安装.<br>接下来看submit的代码:</p>
-<p><pre class="prettyprint lang-python"><br>def submit(self, fn, <em>args, *</em>kwargs):<br>        with self._shutdown_lock:<br>            if self._shutdown:<br>                raise RuntimeError(‘cannot schedule new futures after shutdown’)<br>            f = _base.Future()<br>            w = _WorkItem(f, fn, args, kwargs)<br>            self._work_queue.put(w)<br>            self._adjust_thread_count()<br>            return f<br></pre><br>功能很简单,就是将任务包装成一个_WorkItem, 然后放入到工作队列中去, 值得一提的是,<br>这个工作队列来自Queue.Queue,本身就是线程安全的,<br>这里主要关注的是_base.Future()构造出来的对象,需要关注它里面的一个方法<br>(当传入了callback时会调用到它):</p>
-<p><pre class="prettyprint lang-python"><br>def add_done_callback(self, fn):<br>        with self._condition:<br>            if self._state not in [CANCELLED, CANCELLED_AND_NOTIFIED, FINISHED]:<br>                self._done_callbacks.append(fn)<br>                return<br>        fn(self)<br></pre><br>也就是如果这个Future已经完成/取消了,则会执行传入的回调函数,否则加入到完成回调函数列表中.</p>
-<h3 id="5-MySQL连接池"><a href="#5-MySQL连接池" class="headerlink" title="5.MySQL连接池"></a>5.MySQL连接池</h3><p>由于项目使用的是torndb, 因此写一个轻量级的MySQL连接池逻辑很简单, 代码如下:</p>
-<p><pre class="prettyprint lang-python"><br>class MysqlConnPool(object):<br>    def <strong>init</strong>(self, host, database, user, pwd, max_conns=30):<br>        self.idle_conn = Queue.Queue()<br>        self.pool_size = 0<br>        self.max_conns = max_conns<br>        self.conn_params = (host, database, user, pwd)<br>        self.poll_size_mutex = threading.Lock()</pre></p>
-<pre><code>def _get_conn_from_pool(self):
-    if self.idle_conn.empty() and self.pool_size &lt; self.max_conns:
-        conn = torndb.Connection(*self.conn_params, time_zone=&quot;+8:00&quot;)
-        self.poll_size_mutex.acquire()
-        self.pool_size += 1
-        self.poll_size_mutex.release()
-        return conn
-    return self.idle_conn.get()
-
-
-def query(self, *args, **kwargs):
-    conn = self._get_conn_from_pool()
-    res = conn.query(*args, **kwargs)
-    self.idle_conn.put(conn)
-    return res
-# 封装其它方法
-</code></pre><p><br>使用时只要在系统初始化的时候把连接池初始化好, 后面数据库的一些处理接口都封装好了,<br>直接调用就可以了.</p>
-<ul>
-<li>关于异常处理:交由外层逻辑判断,内部不做判断</li>
-<li>关于析构:可以在线程池退出时断开所有的连接</li>
-</ul>
-<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><p>使用run_on_executor装饰后,就可以将被修饰的方法当做普通的异步方法使用,<br>使用时可以使用yield tornado.gen.Task() 结合 tornado.gen.coroutine的方法实现同步代码异步效果.</p>
-
-          
+          1.介绍使用多Tornado的都知道,在Tornado中所有的操作都建议采用异步的形式,但是实际情况是很多的操作并没有异步版本, 比如现在要解决的就是MySQL的同步阻塞问题.通过调查别家大牛的处理方案, 个人觉得最简单,对代码修改程度最小的当属:线程池+MySQL连接池的方案.
+2.方案概述使用这
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017/02/17/solve-blocked-mysql-in-tornado/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1089,56 +715,18 @@ def query(self, *args, **kwargs):
       
         
           
-            <h3 id="起因"><a href="#起因" class="headerlink" title="起因"></a>起因</h3><p>最近要写一个工具给商务部门的人使用,而我又不知道用Python写界面,于是想到了使用HTML<br>页面来做界面的IDEAL,但是我又不想自己的工具以来太多的三方库,那就使用SimpleHTTPServer<br>吧.</p>
-<h3 id="开始使用"><a href="#开始使用" class="headerlink" title="开始使用"></a>开始使用</h3><p>SimpleHTTPServer的典型使用方式为:</p>
-<pre class="prettyprint lang-python">
-httpd = BaseHTTPServer.HTTPServer(('0.0.0.0', port), SimpleHTTPServer.SimpleHTTPRequestHandler)
-sa = httpd.socket.getsockname()
-httpd.serve_forever()
-</pre>
+          起因最近要写一个工具给商务部门的人使用,而我又不知道用Python写界面,于是想到了使用HTML页面来做界面的IDEAL,但是我又不想自己的工具以来太多的三方库,那就使用SimpleHTTPServer吧.
+开始使用SimpleHTTPServer的典型使用方式为:
 
-<p>问题是SimpleHTTPRequestHandler只是用于静态页面,可以看它的源代码中是怎么处理的:</p>
-<pre class="prettyprint lang-python">
-    def do_GET(self):
-        """Serve a GET request."""
-        f = self.send_head()
-        if f:
-            try:
-                self.copyfile(f, self.wfile)
-            finally:
-                f.close()
-</pre>
-
-<p>函数send_head的功能是解析path中的文件名称, 并读取本地对应的文件并返回<br><br>函数copyfile的功能就是将文件内容写入到网络通道.<br><br>现在我想用SimpleHTTPServer实现生成动态网页的功能,那该怎么办呢?</p>
-<h3 id="改造"><a href="#改造" class="headerlink" title="改造"></a>改造</h3><p>看了源代码,最简单的解决方式就是继承SimpleHTTPRequestHandler并重写do_GET方法,然后在这里加上自己的处理逻辑<br><br>比如我的目标是能够让Web服务器在收到process.html?param=value这个请求时能够根据value<br>的值进行动态处理,修改后的代码如下</p>
-<pre class="prettyprint lang-python">
-    def do_GET(self):
-        if self.path.startswith('/process.html'):
-            try:
-                data = self.process_request()
-                self.gen_file(data)
-            except Exception, e:
-                self.gen_file(e)
-            f = self.send_head_1('result.html')
-        else:
-            f = self.send_head()
-</pre>
-
-<p>process_request():根据请求数据生成动态内容<br><br>gen_file():根据动态内容生成本地文件<br><br>send_head_1():读取指定的文件并返回<br><br>这里比较trick的就是由动态数据生成静态页面的过程:</p>
-<ul>
-<li>预先准备了一个模板文件, 其中的动态内容用特殊字符串标记</li>
-<li>生成动态内容后,读取模板文件,将特殊字符串标记替换为动态内容</li>
-<li>将替换后的内容保存到result.html中,并交由handler去读取内容</li>
-<li>后续的操作不变</li>
-</ul>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>至此,一个简单的Handler就改造完毕, 它可以动态处理指定URI的GET请求, 或者直接读取<br>本地的文件返回给用户,基本上满足我这个工具的使用场景了.<br><br>但是从工程上来讲,这个解决方案是快速却又粗糙的:</p>
-<ul>
-<li>每次都需要读取模板文件,并没有将它缓存起来</li>
-<li>动态数据生成后,没必要再创建一个临时的result.html文件,然后去读取,直接将生成的内容<br>写到管道中就行了.</li>
-<li>路由方案选择的是前缀匹配,而且都是写死的,并不能动态配置</li>
-</ul>
-
-          
+httpd = BaseHTT
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017/01/22/transform-simlehttp/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1256,31 +844,23 @@ httpd.serve_forever()
       
         
           
-            <p>公司在大力推广我们组开发的APK，高兴的同时发现我们的打包同学每天都将时间消耗在了打包工作上面，<br>在了解了下他打包的内容后，发现每次打包只是进行如下更改：</p>
-<ul>
-<li>修改应用名称</li>
-<li>修改应用图标</li>
-<li>修改应用的渠道名称</li>
-<li>修改应用中的DataEye标识符</li>
-<li>修改应用的ID，也就是包名</li>
-</ul>
-<p>很明显的重复劳动，作为一个合格的工程师，自然要想法子让打包自动化起来。<br>在调研了下网络上的解决方案后，我觉得在办周时间内写一个自动化打包的工具是没问题，<br>于是马上提出方案，并且大家也觉得非常coool。</p>
-<h3 id="开发过程"><a href="#开发过程" class="headerlink" title="开发过程"></a>开发过程</h3><p>鉴于现在的应用使用Android Studio开发的，而它又是用Gradle来管理自己的编译行为，<br>于是乎我决定在内网的Linux机器上先搞一个编译环境，步骤很简单：<br>安装JDK，安装安卓SDK管理工具，安装gradle</p>
-<p>安装好了之后，从git上把项目代码拉下来，试着打包成功了，进入到下一步：修改参数，<br>在与应用开发人员沟通之后，确定了要修改的配置的位置，然后就是写python脚本进行替换了。</p>
-<p>在替换完之后，直接起一个子进程调用gradle进行编译，过一会儿就看到自己的APK编译成功。</p>
-<p>到此，一个打包工具基本雏形就完成了，接下来就是自动签名了，我采取的方法是：<br>每次打包一个新应用的时候使用keytools重新生成一个key，然后将签名配置在build.gradle中配置好。</p>
-<p>还有个小尾巴，就是需要把apk上传到CDN上，使用人家的库，也容易搞定。<br>另外编译后的包，如果没有上传到CDN，使用者怎么获取呢？<br>我永乐一个很偷懒的方法，那就是把编译完后的包拷贝到指定的目录，<br>然后在该目录下开一个SimpleHTTPServer服务，需要的自己去里面拿就好了，哈哈。</p>
-<p>最后，怎么向外提供服务？当然是使用我最爱的Tornado了，搭建一个网站分分钟的事情，<br>这里我还使用了网上一个大牛写的使用进程实现异步的库，<br>这样就不会因为一个编译任务而卡住整个网站。</p>
-<h3 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h3><p>开发完毕后将工具给同事们使用，现在还在内测中，这个只是一个简化版的自动打包工具，<br>其实还有很多要完善的地方。</p>
-<ul>
-<li>需要和应用开发人员订好开发规范，比如需要替换的字段放到哪里，<br>build.gradle文件中需要添加哪些配置，<br>这些确定下来了我的自动打包工具使用场景才可以泛化</li>
-<li>打包日志需要记录</li>
-<li>代码混淆等当前版本并没有做</li>
-<li>也没有用户权限控制</li>
-</ul>
-<p>不过这个版本已经足以应付打包需求了，毕竟公司人还不多。</p>
+          公司在大力推广我们组开发的APK，高兴的同时发现我们的打包同学每天都将时间消耗在了打包工作上面，在了解了下他打包的内容后，发现每次打包只是进行如下更改：
 
-          
+修改应用名称
+修改应用图标
+修改应用的渠道名称
+修改应用中的DataEye标识符
+修改应用的ID，也就是包名
+
+很明显的重复劳动，作为一个合格的
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017/01/22/android-auto-build-tool/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
