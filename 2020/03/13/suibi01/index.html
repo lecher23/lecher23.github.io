@@ -78,7 +78,7 @@
 <link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Python,Web,Tornado," />
+  <meta name="keywords" content="总结," />
 
 
 
@@ -94,18 +94,18 @@
 
 
 
-<meta name="description" content="1.介绍使用多Tornado的都知道,在Tornado中所有的操作都建议采用异步的形式,但是实际情况是很多的操作并没有异步版本, 比如现在要解决的就是MySQL的同步阻塞问题.通过调查别家大牛的处理方案, 个人觉得最简单,对代码修改程度最小的当属:线程池+MySQL连接池的方案. 2.方案概述使用这种方案,核心有下面几点:  借助tornado.concurrent.run_on_executor">
-<meta name="keywords" content="Python,Web,Tornado">
+<meta name="description" content="最近开始在进行自我提升，主要从三个维度提升自己：控制娱乐时长、增加学习频率、坚持锻炼。 照理说一周时间都没过，是没什么底气去总结、报喜的。但是自己还是想把这段时间的思考写下来。为了能够接受新的生活节奏，自己也做了很多的思想斗争，也感受到了“戒断”反应带来的痛苦，是的，戒掉游戏跟戒毒没啥区别（虽然我没吸过毒）。 在说服自己的过程中，我采取了知行合一的方法，从观念与行动另方面对自己的行为进行纠正。 游">
+<meta name="keywords" content="总结">
 <meta property="og:type" content="article">
-<meta property="og:title" content="在Tornado中将MySQL同步操作封装到线程池中处理">
-<meta property="og:url" content="http://blog.lecher.tech/2017/02/17/solve-blocked-mysql-in-tornado/index.html">
+<meta property="og:title" content="随笔-01">
+<meta property="og:url" content="http://blog.lecher.tech/2020/03/13/suibi01/index.html">
 <meta property="og:site_name" content="Lecher的博客">
-<meta property="og:description" content="1.介绍使用多Tornado的都知道,在Tornado中所有的操作都建议采用异步的形式,但是实际情况是很多的操作并没有异步版本, 比如现在要解决的就是MySQL的同步阻塞问题.通过调查别家大牛的处理方案, 个人觉得最简单,对代码修改程度最小的当属:线程池+MySQL连接池的方案. 2.方案概述使用这种方案,核心有下面几点:  借助tornado.concurrent.run_on_executor">
+<meta property="og:description" content="最近开始在进行自我提升，主要从三个维度提升自己：控制娱乐时长、增加学习频率、坚持锻炼。 照理说一周时间都没过，是没什么底气去总结、报喜的。但是自己还是想把这段时间的思考写下来。为了能够接受新的生活节奏，自己也做了很多的思想斗争，也感受到了“戒断”反应带来的痛苦，是的，戒掉游戏跟戒毒没啥区别（虽然我没吸过毒）。 在说服自己的过程中，我采取了知行合一的方法，从观念与行动另方面对自己的行为进行纠正。 游">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-11-21T07:50:50.000Z">
+<meta property="og:updated_time" content="2020-03-13T01:56:56.910Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="在Tornado中将MySQL同步操作封装到线程池中处理">
-<meta name="twitter:description" content="1.介绍使用多Tornado的都知道,在Tornado中所有的操作都建议采用异步的形式,但是实际情况是很多的操作并没有异步版本, 比如现在要解决的就是MySQL的同步阻塞问题.通过调查别家大牛的处理方案, 个人觉得最简单,对代码修改程度最小的当属:线程池+MySQL连接池的方案. 2.方案概述使用这种方案,核心有下面几点:  借助tornado.concurrent.run_on_executor">
+<meta name="twitter:title" content="随笔-01">
+<meta name="twitter:description" content="最近开始在进行自我提升，主要从三个维度提升自己：控制娱乐时长、增加学习频率、坚持锻炼。 照理说一周时间都没过，是没什么底气去总结、报喜的。但是自己还是想把这段时间的思考写下来。为了能够接受新的生活节奏，自己也做了很多的思想斗争，也感受到了“戒断”反应带来的痛苦，是的，戒掉游戏跟戒毒没啥区别（虽然我没吸过毒）。 在说服自己的过程中，我采取了知行合一的方法，从观念与行动另方面对自己的行为进行纠正。 游">
 
 
 
@@ -134,13 +134,13 @@
 
 
 
-  <link rel="canonical" href="http://blog.lecher.tech/2017/02/17/solve-blocked-mysql-in-tornado/"/>
+  <link rel="canonical" href="http://blog.lecher.tech/2020/03/13/suibi01/"/>
 
 
 
 
 
-  <title>在Tornado中将MySQL同步操作封装到线程池中处理 | Lecher的博客</title>
+  <title>随笔-01 | Lecher的博客</title>
   
 
 
@@ -257,7 +257,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://blog.lecher.tech/2017/02/17/solve-blocked-mysql-in-tornado/">
+    <link itemprop="mainEntityOfPage" href="http://blog.lecher.tech/2020/03/13/suibi01/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="LiCheng">
@@ -274,7 +274,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">在Tornado中将MySQL同步操作封装到线程池中处理</h1>
+          <h1 class="post-title" itemprop="name headline">随笔-01</h1>
         
 
         <div class="post-meta">
@@ -286,8 +286,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-02-17T19:19:09+08:00">
-                2017-02-17
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-03-13T08:36:56+08:00">
+                2020-03-13
               </time>
             
 
@@ -324,54 +324,44 @@
       
 
       
-        <h3 id="1-介绍"><a href="#1-介绍" class="headerlink" title="1.介绍"></a>1.介绍</h3><p>使用多Tornado的都知道,在Tornado中所有的操作都建议采用异步的形式,<br>但是实际情况是很多的操作并没有异步版本, 比如现在要解决的就是MySQL的同步阻塞问题.<br>通过调查别家大牛的处理方案, 个人觉得最简单,对代码修改程度最小的当属:<br>线程池+MySQL连接池的方案.</p>
-<h3 id="2-方案概述"><a href="#2-方案概述" class="headerlink" title="2.方案概述"></a>2.方案概述</h3><p>使用这种方案,核心有下面几点:</p>
-<ul>
-<li>借助tornado.concurrent.run_on_executor装饰器将需要丢入到线程池的任务装饰起来</li>
-<li>实现一个线程池,必须提供提交任务的submit方法</li>
-<li>实现一个MySQL连接池,保证各个MySQL请求之间数据互不干涉</li>
-<li>在handler中使用yield和tornado.web.asynchronous保证异步执行</li>
-</ul>
-<h3 id="3-run-on-executor代码解析"><a href="#3-run-on-executor代码解析" class="headerlink" title="3.run_on_executor代码解析"></a>3.run_on_executor代码解析</h3><p>直接看代码:</p>
-<p><pre class="prettyprint lang-python"><br>def run_on_executor(<em>args, **kwargs):<br>    def run_on_executor_decorator(fn):<br>        executor = kwargs.get(“executor”, “executor”)<br>        io_loop = kwargs.get(“io_loop”, “io_loop”)<br>        @functools.wraps(fn)<br>        def wrapper(self, </em>args, <strong>kwargs):<br>            callback = kwargs.pop(“callback”, None)<br>            future = getattr(self, executor).submit(fn, self, *args, </strong>kwargs)<br>            if callback:<br>                getattr(self, io_loop).add_future(<br>                    future, lambda future: callback(future.result()))<br>            return future<br>        return wrapper</pre></p>
-<pre><code># 省去无关代码
-return run_on_executor_decorator
-</code></pre><p><br>我觉得重要的几个点:</p>
-<ul>
-<li>装饰器会从装饰的方法的实例中寻找线程池实例(也就是获取executor)</li>
-<li>装饰器会将装饰的方法提交到线程池中运行, 而submit方法会返回一个Future对象</li>
-<li>如果装饰的方法提供了callback参数, 那么会在任务执行结束后执行callback函数,<br>具体如何执行,下面会介绍</li>
-<li>在调用被装饰的方法时, 会返回一个Future对象,<br>这满足了tornado的tornado.web.asynchronous装饰器要求</li>
-<li>当需要在任务处理完成时处理一些额外逻辑, 必须在参数中传入callback,<br>但是确保自己已经在类中设置了io_loop,如果需要在程序结束时处理返回的值,<br>则必须要在传入的参数中增加callback参数.</li>
-</ul>
-<p>当callback参数存在时执行的逻辑为:将future加入到io_loop中去,io_loop中add_future的用法是:<br>在future的完成回调中增加一个方法,该方法会将callback增加到io_loop的主循环待处理callback队列中.</p>
-<h3 id="4-ThreadPoolExecutor的submit方法"><a href="#4-ThreadPoolExecutor的submit方法" class="headerlink" title="4.ThreadPoolExecutor的submit方法"></a>4.ThreadPoolExecutor的submit方法</h3><p>使用线程池时,不用重复造轮子,可以直接使用ThreadPoolExecutor来构造线程池,<br>需要注意的是Python2.7下需要使用 pip install futures 来安装.<br>接下来看submit的代码:</p>
-<p><pre class="prettyprint lang-python"><br>def submit(self, fn, <em>args, *</em>kwargs):<br>        with self._shutdown_lock:<br>            if self._shutdown:<br>                raise RuntimeError(‘cannot schedule new futures after shutdown’)<br>            f = _base.Future()<br>            w = _WorkItem(f, fn, args, kwargs)<br>            self._work_queue.put(w)<br>            self._adjust_thread_count()<br>            return f<br></pre><br>功能很简单,就是将任务包装成一个_WorkItem, 然后放入到工作队列中去, 值得一提的是,<br>这个工作队列来自Queue.Queue,本身就是线程安全的,<br>这里主要关注的是_base.Future()构造出来的对象,需要关注它里面的一个方法<br>(当传入了callback时会调用到它):</p>
-<p><pre class="prettyprint lang-python"><br>def add_done_callback(self, fn):<br>        with self._condition:<br>            if self._state not in [CANCELLED, CANCELLED_AND_NOTIFIED, FINISHED]:<br>                self._done_callbacks.append(fn)<br>                return<br>        fn(self)<br></pre><br>也就是如果这个Future已经完成/取消了,则会执行传入的回调函数,否则加入到完成回调函数列表中.</p>
-<h3 id="5-MySQL连接池"><a href="#5-MySQL连接池" class="headerlink" title="5.MySQL连接池"></a>5.MySQL连接池</h3><p>由于项目使用的是torndb, 因此写一个轻量级的MySQL连接池逻辑很简单, 代码如下:</p>
-<p><pre class="prettyprint lang-python"><br>class MysqlConnPool(object):<br>    def <strong>init</strong>(self, host, database, user, pwd, max_conns=30):<br>        self.idle_conn = Queue.Queue()<br>        self.pool_size = 0<br>        self.max_conns = max_conns<br>        self.conn_params = (host, database, user, pwd)<br>        self.poll_size_mutex = threading.Lock()</pre></p>
-<pre><code>def _get_conn_from_pool(self):
-    if self.idle_conn.empty() and self.pool_size &lt; self.max_conns:
-        conn = torndb.Connection(*self.conn_params, time_zone=&quot;+8:00&quot;)
-        self.poll_size_mutex.acquire()
-        self.pool_size += 1
-        self.poll_size_mutex.release()
-        return conn
-    return self.idle_conn.get()
-
-
-def query(self, *args, **kwargs):
-    conn = self._get_conn_from_pool()
-    res = conn.query(*args, **kwargs)
-    self.idle_conn.put(conn)
-    return res
-# 封装其它方法
-</code></pre><p><br>使用时只要在系统初始化的时候把连接池初始化好, 后面数据库的一些处理接口都封装好了,<br>直接调用就可以了.</p>
-<ul>
-<li>关于异常处理:交由外层逻辑判断,内部不做判断</li>
-<li>关于析构:可以在线程池退出时断开所有的连接</li>
-</ul>
-<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><p>使用run_on_executor装饰后,就可以将被修饰的方法当做普通的异步方法使用,<br>使用时可以使用yield tornado.gen.Task() 结合 tornado.gen.coroutine的方法实现同步代码异步效果.</p>
+        <p>最近开始在进行自我提升，主要从三个维度提升自己：控制娱乐时长、增加学习频率、坚持锻炼。</p>
+<p>照理说一周时间都没过，是没什么底气去总结、报喜的。但是自己还是想把这段时间的思考写下来。为了能够接受新的生活节奏，自己也做了很多的思想斗争，也感受到了“戒断”反应带来的痛苦，是的，戒掉游戏跟戒毒没啥区别（虽然我没吸过毒）。</p>
+<p>在说服自己的过程中，我采取了知行合一的方法，从观念与行动另方面对自己的行为进行纠正。</p>
+<h2 id="游戏"><a href="#游戏" class="headerlink" title="游戏"></a>游戏</h2><p>要知道我可是老玩家了，从初中开始接触游戏，从最初的雷霆战机、泡泡堂、星际争霸、war3到后来的网游、dota、dota2、炉石传说，在游戏的一路伴随下来到了而立之年。如今，自己下定决心要跟这个老朋友减少往来了。</p>
+<h3 id="纠正观念"><a href="#纠正观念" class="headerlink" title="纠正观念"></a>纠正观念</h3><ol>
+<li>不玩没损失：以前自己一有空就想着玩游戏，生怕错过每日任务、登陆奖励等，其实不玩的话这些奖励的价值也就是0</li>
+<li>玩了不一定快乐：玩游戏对于我来说是获取快乐的一种方式，如果玩游戏还有可能导致愤怒、不甘等负面情绪，那是不是与自己的初衷违背了呢？</li>
+<li>不能释放压力：想想自己生活本来就一堆有压力的事情，游戏上又遭受打击，更难受了！</li>
+<li>不能回复意志力：心理学上认为意志力是类似能量的一种消耗品，当你做自己不想做的事情时就会消耗意志力，由于最近几年玩游戏有点强迫自己玩的趋势，现在想来意志力在自己玩游戏时也被消耗了，自然结束游戏后就做不到再做其它自己不想做但是有益的事情了。</li>
+<li>浪费时间：很明显，有时候下班回家往电脑前面一坐，时间立马就到了22点甚至23点，时间都去哪了？</li>
+</ol>
+<h3 id="实际行动"><a href="#实际行动" class="headerlink" title="实际行动"></a>实际行动</h3><ol>
+<li>少玩游戏：让我不玩游戏应该是不现实的，步子太大容易扯到蛋，但是只要坚持每天将游戏时间控制在1个小时内就很成功了。</li>
+<li>不看直播：很多时候在下游戏后条件反射式地打开直播，然后一看就看到了睡觉，这跟游戏没啥区别，也得控制。</li>
+</ol>
+<h2 id="学习"><a href="#学习" class="headerlink" title="学习"></a>学习</h2><p>真的是太久不学习了，去年还立了一个读20本书的目标，最后也不了了之。今年也不立啥目标，有时间就读书吧，补充自己的知识库。</p>
+<h3 id="纠正观念-1"><a href="#纠正观念-1" class="headerlink" title="纠正观念"></a>纠正观念</h3><ol>
+<li>学习是快乐的：以前看书的时候总觉得看书是很折磨人的事情，大概是当初考大学的时候太用力，导致后面自己都不怎么看书了（小说除外）。读研期间买的kindle到现在也没有回本。其实看书的过程是有那么一点痛苦的，要去调动思维理解作者想表达的意思，去吸收书中传达的观点和结论。对我来说，还有压制心中时不时浮现的玩游戏的欲望。但是每次阅读结束时心情是非常满足的，游戏可不能带给我这种满足。</li>
+<li>学习是有长远收益的：之前自己看书时光想着赶紧游戏，没有考虑过收益。很明显，玩一小时游戏只会让自己接下来几小时内快乐（可能不快乐），看书一小时的知识可能这辈子就跟着你了，在某个你需要它的时候从脑海中浮现出来。</li>
+<li>学习只需要少量意志力：看书需要意志力作为驱动，一旦形成了正反馈，就不再需要意志力了，反而可以帮个人恢复意志力。</li>
+</ol>
+<h3 id="实际行动-1"><a href="#实际行动-1" class="headerlink" title="实际行动"></a>实际行动</h3><ol>
+<li>阅读非专业书籍：心理学、金融、历史这些书籍都是对个人生活非常有帮助的，本人最喜欢的《明朝那些事儿》就曾经让处于低谷期的自己重新振作起来，同时其中的一些历史人物事迹甚至改变了自己的一些处事观念（很神奇）。</li>
+<li>动手实践：实践是检验真理的唯一标准，对于工程师来说更是这样，在阅读自己工作相关的书籍时一定要多动手，我们这一行，必须要理论与实践相结合。</li>
+<li>课程视频：视频传递知识的速度有时候不如阅读，但是好在画面感强，可以从视觉、听觉、感觉多方面传递信息，在看累了书的时候不妨试试课程视频。个人是不喜欢看教程的，心太急躁。</li>
+</ol>
+<h2 id="锻炼"><a href="#锻炼" class="headerlink" title="锻炼"></a>锻炼</h2><p>自从毕业后，体重就开始了爬坡模式，再不采取措施就要变成超级油腻中年男了。奈何本人天生喜静不喜动，锻炼是个大的挑战。</p>
+<h3 id="纠正观念-2"><a href="#纠正观念-2" class="headerlink" title="纠正观念"></a>纠正观念</h3><ol>
+<li>出汗很舒服：出汗的感觉是非常难受的，浑身黏糊糊，但是只要出汗足够多，就会感觉像洗澡一样舒服，其实就是运动量不够时那种界限期，突破了界限就舒服了。</li>
+<li>每天运动量不够：作为上班族的我，每天真的没啥运动，运动量小的可怜。</li>
+<li>清醒头脑：坚持运动促进血液循环，也许还能缓解富贵包，这样的话更多血液流向大脑，就不会总感觉精力不够用了</li>
+<li>长远看身体会越来越好：虽然锻炼很累，会引起原始大脑的强烈抵抗，但是长远来看，对维持一个健康的身体是非常必要的。</li>
+<li>提升意志力：坚持锻炼会让自己执行力更强，毕竟连锻炼的都坚持下来了，还有啥怕的？更利于压制自己的原始大脑。</li>
+</ol>
+<h3 id="实际行动-2"><a href="#实际行动-2" class="headerlink" title="实际行动"></a>实际行动</h3><ol>
+<li>坚持锻炼：不能因为乱七八糟的借口随意逃跑。</li>
+<li>不乱吃东西：采取8-16饮食法，只吃早午餐，过午不食。</li>
+</ol>
 
       
     </div>
@@ -389,11 +379,7 @@ def query(self, *args, **kwargs):
       
         <div class="post-tags">
           
-            <a href="/tags/Python/" rel="tag"># Python</a>
-          
-            <a href="/tags/Web/" rel="tag"># Web</a>
-          
-            <a href="/tags/Tornado/" rel="tag"># Tornado</a>
+            <a href="/tags/总结/" rel="tag"># 总结</a>
           
         </div>
       
@@ -406,8 +392,8 @@ def query(self, *args, **kwargs):
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/01/22/transform-simlehttp/" rel="next" title="SimpleHTTPServer的改造">
-                <i class="fa fa-chevron-left"></i> SimpleHTTPServer的改造
+              <a href="/2020/03/11/cyzs-summary/" rel="next" title="超越智商-阅后整理">
+                <i class="fa fa-chevron-left"></i> 超越智商-阅后整理
               </a>
             
           </div>
@@ -415,10 +401,6 @@ def query(self, *args, **kwargs):
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/02/21/sth-important-on-payment-sys/" rel="prev" title="支付后台开发小计">
-                支付后台开发小计 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -543,7 +525,7 @@ def query(self, *args, **kwargs):
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-介绍"><span class="nav-number">1.</span> <span class="nav-text">1.介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-方案概述"><span class="nav-number">2.</span> <span class="nav-text">2.方案概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-run-on-executor代码解析"><span class="nav-number">3.</span> <span class="nav-text">3.run_on_executor代码解析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-ThreadPoolExecutor的submit方法"><span class="nav-number">4.</span> <span class="nav-text">4.ThreadPoolExecutor的submit方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-MySQL连接池"><span class="nav-number">5.</span> <span class="nav-text">5.MySQL连接池</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用"><span class="nav-number">6.</span> <span class="nav-text">使用</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#游戏"><span class="nav-number">1.</span> <span class="nav-text">游戏</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#纠正观念"><span class="nav-number">1.1.</span> <span class="nav-text">纠正观念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实际行动"><span class="nav-number">1.2.</span> <span class="nav-text">实际行动</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#学习"><span class="nav-number">2.</span> <span class="nav-text">学习</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#纠正观念-1"><span class="nav-number">2.1.</span> <span class="nav-text">纠正观念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实际行动-1"><span class="nav-number">2.2.</span> <span class="nav-text">实际行动</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#锻炼"><span class="nav-number">3.</span> <span class="nav-text">锻炼</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#纠正观念-2"><span class="nav-number">3.1.</span> <span class="nav-text">纠正观念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实际行动-2"><span class="nav-number">3.2.</span> <span class="nav-text">实际行动</span></a></li></ol></li></ol></div>
             
 
           </div>
